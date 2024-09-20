@@ -117,12 +117,12 @@ static bool display_data_content_and_confirm(dispatcher_context_t* dc,
     memset(value, 0, sizeof(value));
 
     // Get the first chunk that contains the data to display
-    int current_chunk_len = call_get_merkle_leaf_element(dc,
-                                                         data_merkle_root,
-                                                         n_chunks,
-                                                         DATA_CHUNK_INDEX_1,
-                                                         data_chunk,
-                                                         CHUNK_SIZE_IN_BYTES);
+    call_get_merkle_leaf_element(dc,
+                                 data_merkle_root,
+                                 n_chunks,
+                                 DATA_CHUNK_INDEX_1,
+                                 data_chunk,
+                                 CHUNK_SIZE_IN_BYTES);
     // Start Parsing
 
     // format value
@@ -145,12 +145,12 @@ static bool display_data_content_and_confirm(dispatcher_context_t* dc,
     }
     value_with_ticker[i + 1] = '\0';
     // Get the second chunk that contains the data to display
-    current_chunk_len = call_get_merkle_leaf_element(dc,
-                                                     data_merkle_root,
-                                                     n_chunks,
-                                                     DATA_CHUNK_INDEX_2,
-                                                     data_chunk,
-                                                     CHUNK_SIZE_IN_BYTES);
+    call_get_merkle_leaf_element(dc,
+                                 data_merkle_root,
+                                 n_chunks,
+                                 DATA_CHUNK_INDEX_2,
+                                 data_chunk,
+                                 CHUNK_SIZE_IN_BYTES);
     // get the length from the first 32 bytes of data_chunk. It is the last 2 bytes
     int offset_length = 30;
     size_t len_redeemer_output_script = read_u16_be(data_chunk, offset_length);
@@ -449,7 +449,6 @@ void fetch_and_abi_encode_tx_fields(dispatcher_context_t* dc,
                                   true,
                                   output_buffer,
                                   offset);
-    offset += 32;
 }
 
 void compute_tx_hash(dispatcher_context_t* dc,
