@@ -55,6 +55,7 @@ Once the user approves, the `REGISTER_WALLET` returns to the client a 32-byte HM
 | SW     | SW name                      | Description |
 |--------|------------------------------|-------------|
 | 0x6985 | `SW_DENY`                    | Rejected by user |
+| 0x6A80 | `SW_INCORECT_DATA`           | Data is incorrect |
 | 0x6A86 | `SW_WRONG_P1P2`              | Either `P1` or `P2` is incorrect |
 | 0x6A87 | `SW_WRONG_DATA_LENGTH`       | `Lc` or minimum APDU length is incorrect |
 | 0x6D00 | `SW_INS_NOT_SUPPORTED`       | No command exists with `INS` |
@@ -332,6 +333,73 @@ The client must respond to the `GET_PREIMAGE`, `GET_MERKLE_LEAF_PROOF` and `GET_
 ## Client commands reference
 
 This section documents the commands that the Hardware Wallet can request to the client when returning with a `SW_INTERRUPTED_EXECUTION` status word.
+
+
+### SIGN_WITHDRAWAL
+
+Signs a Withdrawal message. The message being signed is the hash of the Acre Withdrawal transaction.
+
+The device shows on its secure screen the value of stBTC being withdrawn and the address derived from the output script present in the transaction.
+
+If the address derived from the output scipt does not match with the one derived from the derivation path, the application returns the status word `SW_INCORECT_DATA`.
+
+#### Encoding
+
+**Command**
+
+| *CLA* | *INS* |
+|-------|-------|
+| E1    | 11    |
+
+**Input data**
+
+| Length  | Name              | Description |
+|---------|-------------------|-------------|
+| `1`     | `n`               | Number of derivation steps (maximum 8) |
+| `4`     | `bip32_path[0]`   | First derivation step (big endian) |
+| `4`     | `bip32_path[1]`   | Second derivation step (big endian) |
+|         | ...               |             |
+| `4`     | `bip32_path[n-1]` | `n`-th derivation step (big endian) |
+| `1`     | `n_chunks  `      | The total number of data chunks |
+| `32`    | `merkle_root`     | The Merkle root of the Withdrawal data, split in 64-byte chunks |
+
+The message to be signed is split into `5 + ceil(smart_contract_data.length/64)` chunks of 64 bytes; `merkle_root` is the root of the Merkle tree of the corresponding list of chunks.
+
+The data is organized into chunks as follows:
+
+| Length | Chunk Number |	Content Description  |
+|--------|--------------|------------------------|
+| 60     | 0	        | to[20] + gasToken[20] + refundReceiver[20]|
+| 64     | 1	        | value[32] + safeTxGas[32]|
+| 64     | 2	        | baseGas[32] + gasPrice[32]|
+| 33     | 3	        | nonce[32] + operation[1]|
+| 4      | 4	        | smart_contract_data[0:4] (the selector of the smart contract data)|
+| 64     | 5 to n       | Remaining smart_contract_data split into 64-byte chunks|
+
+ 
+**Output data**
+
+| Length | Description |
+|--------|-------------|
+| `65`   | The returned signature, encoded in the standard Bitcoin message signing format |
+
+The signature is returned as a 65-byte binary string (1 byte equal to 32 or 33, followed by `r` and `s`, each of them represented as a 32-byte big-endian integer).
+
+#### Description
+
+The digest being signed is the double-SHA256 of the Withdrawal transaction hash, after prefixing the message with:
+
+- the magic string `"\x18Bitcoin Signed Message:\n"` (equal to `18426974636f696e205369676e6564204d6573736167653a0a` in hexadecimal)
+- the length of the hash, encoded as a Bitcoin-style variable length integer.
+
+#### Client commands
+
+The client must respond to the `GET_PREIMAGE`, `GET_MERKLE_LEAF_PROOF` and `GET_MERKLE_LEAF_INDEX` queries for the Merkle tree of the list of chunks in the Withdrawal data.
+
+## Client commands reference
+
+This section documents the commands that the Hardware Wallet can request to the client when returning with a `SW_INTERRUPTED_EXECUTION` status word.
+
 
 | CMD | COMMAND NAME          | DESCRIPTION |
 |-----|-----------------------|-------------|

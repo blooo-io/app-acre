@@ -46,8 +46,6 @@
 
 // Constants for hash computation
 
-////////////////////////
-
 static unsigned char const BSM_SIGN_MAGIC[] = {'\x18', 'B', 'i', 't', 'c', 'o', 'i', 'n', ' ',
                                                'S',    'i', 'g', 'n', 'e', 'd', ' ', 'M', 'e',
                                                's',    's', 'a', 'g', 'e', ':', '\n'};
@@ -69,6 +67,21 @@ static const uint8_t safe_tx_typehash[32] = {
     0xbb, 0x83, 0x10, 0xd4, 0x86, 0x36, 0x8d, 0xb6, 0xbd, 0x6f, 0x84, 0x94, 0x02, 0xfd, 0xd7, 0x3a,
     0xd5, 0x3d, 0x31, 0x6b, 0x5a, 0x4b, 0x26, 0x44, 0xad, 0x6e, 0xfe, 0x0f, 0x94, 0x12, 0x86, 0xd8};
 
+/**
+ * @brief Checks if the provided address matches the address derived from the given BIP32 path.
+ *
+ * This function derives a compressed public key from the provided BIP32 path and then generates
+ * an address from this public key. It compares the generated address with the provided address
+ * to check if they match.
+ *
+ * @param bip32_path A pointer to an array containing the BIP32 path.
+ * @param bip32_path_len The length of the BIP32 path array.
+ * @param address_to_check A pointer to the address string to be checked.
+ * @param address_to_check_len The length of the address string to be checked.
+ * @param address_type The type of address to generate (e.g., P2PKH, P2SH, SegWit).
+ *
+ * @return true if the generated address matches the provided address, false otherwise.
+ */
 static bool check_address(uint32_t* bip32_path,
                           uint8_t bip32_path_len,
                           char* address_to_check,
@@ -106,6 +119,21 @@ static bool check_address(uint32_t* bip32_path,
     return true;
 }
 
+/**
+ * @brief Displays data content and confirms the withdrawal operation.
+ *
+ * This function retrieves and formats data chunks from a Merkle tree, validates
+ * the data, and displays it for user confirmation. It handles the parsing of
+ * the data chunks, formatting of the value, and validation of the redeemer address.
+ *
+ * @param dc Pointer to the dispatcher context.
+ * @param data_merkle_root Pointer to the Merkle root of the data.
+ * @param n_chunks Number of chunks in the Merkle tree.
+ * @param bip32_path Pointer to the BIP32 path.
+ * @param bip32_path_len Length of the BIP32 path.
+ *
+ * @return true if the data is successfully displayed and confirmed, false otherwise.
+ */
 static bool display_data_content_and_confirm(dispatcher_context_t* dc,
                                              uint8_t* data_merkle_root,
                                              size_t n_chunks,
@@ -134,6 +162,7 @@ static bool display_data_content_and_confirm(dispatcher_context_t* dc,
     };
 
     // Concat the COIN_COINID_SHORT to the value
+    // AMOUNT_SIZE_IN_CHARS + 1 space + 5 for the ticker + 1 for the null terminator
     char value_with_ticker[AMOUNT_SIZE_IN_CHARS + 1 + 5 + 1];
     snprintf(value_with_ticker, sizeof(value_with_ticker), "st%s %s", COIN_COINID_SHORT, value);
 
@@ -221,6 +250,22 @@ void add_leading_zeroes(uint8_t* dest_buffer,
     memcpy(dest_buffer + buffer_offset, src_buffer, src_size);
 }
 
+/**
+ * @brief Fetches a chunk of data from a Merkle tree, processes it, and adds it to a hash context.
+ *
+ * This function retrieves a specific chunk of data from a Merkle tree using the provided dispatcher
+ * context and Merkle root. The chunk is then optionally ABI-encoded and added to the provided hash
+ * context.
+ *
+ * @param dc                Pointer to the dispatcher context.
+ * @param data_merkle_root  Pointer to the Merkle root of the data.
+ * @param n_chunks          Total number of chunks in the Merkle tree.
+ * @param hash_context      Pointer to the SHA-3 hash context.
+ * @param chunk_index       Index of the chunk to fetch.
+ * @param chunk_offset      Offset within the chunk to start processing.
+ * @param chunk_data_size   Size of the data within the chunk to process.
+ * @param abi_encode        Boolean flag indicating whether to ABI-encode the data before hashing.
+ */
 void fetch_and_add_chunk_to_hash(dispatcher_context_t* dc,
                                  uint8_t* data_merkle_root,
                                  size_t n_chunks,
@@ -261,6 +306,7 @@ void fetch_and_add_chunk_to_hash(dispatcher_context_t* dc,
                               NULL,               // output (intermediate)
                               0));                // no output yet
 }
+
 /**
  * @brief Fetches a chunk of data from a Merkle tree and adds it to the output buffer.
  *
@@ -315,6 +361,22 @@ void fetch_and_add_chunk_to_buffer(dispatcher_context_t* dc,
     memcpy(output_buffer + output_buffer_offset, input_buffer, input_buffer_size);
 }
 
+/**
+ * @brief Fetches transaction data chunks, hashes them, and stores the result.
+ *
+ * This function fetches specific chunks of transaction data, adds them to a hash context,
+ * and finalizes the hash, storing the result in the provided output buffer.
+ *
+ * @param[in] dc                Pointer to the dispatcher context.
+ * @param[in] data_merkle_root  Pointer to the data Merkle root.
+ * @param[in] n_chunks          Number of chunks in the transaction data.
+ * @param[in] hash_context      Pointer to the SHA-3 hash context.
+ * @param[out] output_buffer    Buffer to store the resulting hash (32 bytes).
+ *
+ * @note The function fetches and hashes the first 4 bytes of the transaction data separately.
+ *       It then fetches and hashes the remaining chunks in 32-byte segments.
+ *       The hash is finalized and stored in the output buffer.
+ */
 void fetch_and_hash_tx_data(dispatcher_context_t* dc,
                             uint8_t* data_merkle_root,
                             size_t n_chunks,
@@ -338,6 +400,20 @@ void fetch_and_hash_tx_data(dispatcher_context_t* dc,
                               32));           // output hash length (32 bytes)
 }
 
+/**
+ * @brief Fetches and ABI encodes transaction fields into the output buffer.
+ *
+ * This function retrieves various fields from a transaction, ABI encodes them,
+ * and stores them sequentially in the provided output buffer. The fields are
+ * fetched from a Merkle tree using the provided dispatcher context and data
+ * Merkle root.
+ *
+ * @param dc Pointer to the dispatcher context used for fetching data.
+ * @param data_merkle_root Pointer to the root of the Merkle tree containing the transaction data.
+ * @param n_chunks Number of chunks in the Merkle tree.
+ * @param keccak_of_tx_data Pointer to the Keccak hash of the transaction data.
+ * @param output_buffer Pointer to the buffer where the encoded transaction fields will be stored.
+ */
 void fetch_and_abi_encode_tx_fields(dispatcher_context_t* dc,
                                     uint8_t* data_merkle_root,
                                     size_t n_chunks,
@@ -451,6 +527,22 @@ void fetch_and_abi_encode_tx_fields(dispatcher_context_t* dc,
                                   offset);
 }
 
+/**
+ * @brief Computes the transaction hash using Keccak-256.
+ *
+ * This function performs the following steps:
+ * 1. Initializes a SHA-3 context for Keccak-256 (256-bit output).
+ * 2. Computes the Keccak-256 hash of the transaction data.
+ * 3. Fetches and ABI-encodes the transaction fields.
+ * 4. Computes the Keccak-256 hash of the ABI-encoded transaction fields.
+ * 5. ABI-encodes the packed data, which includes two Keccak-256 hashes.
+ * 6. Computes the Keccak-256 hash of the ABI-encoded packed data.
+ *
+ * @param dc Pointer to the dispatcher context.
+ * @param data_merkle_root Pointer to the data Merkle root.
+ * @param n_chunks Number of chunks in the transaction data.
+ * @param output_buffer Buffer to store the final computed hash (32 bytes).
+ */
 void compute_tx_hash(dispatcher_context_t* dc,
                      uint8_t* data_merkle_root,
                      size_t n_chunks,
@@ -498,6 +590,20 @@ void compute_tx_hash(dispatcher_context_t* dc,
                               32));
 }
 
+/**
+ * @brief Signs a transaction hash using ECDSA with a given BIP32 path.
+ *
+ * This function computes the Bitcoin Message Signing (BSM) digest of the given transaction hash,
+ * then signs the digest using the ECDSA algorithm with the provided BIP32 path.
+ *
+ * @param[in] dc Dispatcher context.
+ * @param[in] bip32_path Pointer to the BIP32 path array.
+ * @param[in] bip32_path_len Length of the BIP32 path array.
+ * @param[in] tx_hash Pointer to the transaction hash string.
+ * @param[out] sig Pointer to the buffer where the signature will be stored.
+ *
+ * @return The length of the generated signature, or -1 if an error occurred.
+ */
 uint32_t sign_tx_hash(dispatcher_context_t* dc,
                       uint32_t* bip32_path,
                       uint8_t bip32_path_len,
@@ -536,6 +642,34 @@ uint32_t sign_tx_hash(dispatcher_context_t* dc,
     return info;
 }
 
+/**
+ * @brief Handler for processing withdrawal requests.
+ *
+ * This file contains the implementation of the handler for processing withdrawal requests.
+ * It reads the necessary data from the dispatcher context, validates it, and performs the
+ * required cryptographic operations to sign the transaction.
+ *
+ * @param dc Pointer to the dispatcher context.
+ * @param protocol_version The protocol version being used.
+ *
+ * The function performs the following steps:
+ * 1. Reads the BIP32 path length, BIP32 path, number of chunks, and data Merkle root from the
+ * dispatcher context's read buffer.
+ * 2. Validates the read data and ensures the BIP32 path length does not exceed the maximum allowed
+ * steps.
+ * 3. Formats the BIP32 path into a string for display.
+ * 4. Optionally displays the data content and requests user confirmation (if auto-approve is not
+ * enabled).
+ * 5. Computes the transaction hash to be signed.
+ * 6. Converts the transaction hash to a hexadecimal string for display.
+ * 7. Signs the transaction hash using the BIP32 path.
+ * 8. Formats the signature into the standard Bitcoin format.
+ * 9. Sends the formatted signature as the response.
+ * 10. Updates the UI to indicate the result of the operation.
+ *
+ * If any step fails, the function sends an appropriate status word (SW) and updates the UI to
+ * indicate the failure.
+ */
 void handler_withdraw(dispatcher_context_t* dc, uint8_t protocol_version) {
     (void) protocol_version;
 
@@ -565,7 +699,6 @@ void handler_withdraw(dispatcher_context_t* dc, uint8_t protocol_version) {
     }
 
 #ifndef HAVE_AUTOAPPROVE_FOR_PERF_TESTS
-    // ui_pre_processing_message();
     if (!display_data_content_and_confirm(dc,
                                           data_merkle_root,
                                           n_chunks,
