@@ -220,7 +220,7 @@ void ui_accept_transaction_simplified_flow(void) {
 
     nbgl_useCaseReview(TYPE_TRANSACTION,
                        &pairList,
-                       &C_Bitcoin_64px,
+                       &C_Acre_64px,
                        "Review transaction\nto send Bitcoin",
                        NULL,
                        "Sign transaction\nto send Bitcoin?",
@@ -229,7 +229,7 @@ void ui_accept_transaction_simplified_flow(void) {
 
 void ui_display_transaction_prompt(void) {
     nbgl_useCaseReviewStreamingStart(TYPE_TRANSACTION,
-                                     &C_Bitcoin_64px,
+                                     &C_Acre_64px,
                                      "Review transaction\nto send Bitcoin",
                                      NULL,
                                      start_transaction_callback);
@@ -293,7 +293,7 @@ void ui_display_pubkey_flow(void) {
 
     nbgl_useCaseReviewLight(TYPE_OPERATION,
                             &pairList,
-                            &C_Bitcoin_64px,
+                            &C_Acre_64px,
                             "Confirm public key",
                             NULL,
                             "Approve public key",
@@ -312,7 +312,7 @@ void ui_display_receive_in_wallet_flow(void) {
 
     nbgl_useCaseAddressReview(g_ui_state.wallet.address,
                               &pairList,
-                              &C_Bitcoin_64px,
+                              &C_Acre_64px,
                               "Verify Bitcoin\naddress",
                               NULL,
                               status_address_callback);
@@ -356,7 +356,7 @@ void ui_display_register_wallet_policy_flow(void) {
 
     nbgl_useCaseReviewLight(TYPE_OPERATION,
                             &pairList,
-                            &C_Bitcoin_64px,
+                            &C_Acre_64px,
                             "Review account\nto register",
                             NULL,
                             "Register account?",
@@ -381,7 +381,7 @@ void ui_display_pubkey_suspicious_flow(void) {
     pairList.pairs = pairs;
 
     contentList[0].type = CENTERED_INFO;
-    contentList[0].content.centeredInfo.icon = &C_Bitcoin_64px;
+    contentList[0].content.centeredInfo.icon = &C_Acre_64px;
     contentList[0].content.centeredInfo.text1 = "Confirm public key";
     contentList[0].content.centeredInfo.text2 = NULL;
     contentList[0].content.centeredInfo.text3 = NULL;
@@ -404,7 +404,7 @@ void ui_display_pubkey_suspicious_flow(void) {
 
     contentList[3].type = INFO_BUTTON;
     contentList[3].content.infoButton.text = "Approve public key";
-    contentList[3].content.infoButton.icon = &C_Bitcoin_64px;
+    contentList[3].content.infoButton.icon = &C_Acre_64px;
     contentList[3].content.infoButton.buttonText = "Approve";
     contentList[3].content.infoButton.buttonToken = REVIEW_CONFIRM;
     contentList[3].content.infoButton.tuneId = TUNE_TAP_CASUAL;
@@ -478,7 +478,7 @@ void ui_sign_message_content_flow(void) {
     if (show_message_start_page == true) {
         show_message_start_page = false;
         nbgl_useCaseReviewStreamingStart(TYPE_MESSAGE,
-                                         &C_Bitcoin_64px,
+                                         &C_Acre_64px,
                                          "Review message",
                                          NULL,
                                          message_display_content);
@@ -489,7 +489,7 @@ void ui_sign_message_content_flow(void) {
 
 void ui_sign_message_path_hash_and_confirm_flow(void) {
     nbgl_useCaseReviewStreamingStart(TYPE_MESSAGE,
-                                     &C_Bitcoin_64px,
+                                     &C_Acre_64px,
                                      "Review message",
                                      NULL,
                                      message_display_path);
@@ -497,6 +497,24 @@ void ui_sign_message_path_hash_and_confirm_flow(void) {
 
 void ui_sign_message_confirm_flow(void) {
     nbgl_useCaseReviewStreamingFinish("Sign message?", start_processing_message_callback);
+}
+
+void ui_display_withdraw_content_flow(void) {
+    pairList.pairs = pairs;
+    pairList.nbPairs = 2;
+
+    pairs[0].item = "Redeemer Address";
+    pairs[0].value = g_ui_state.validate_withdraw.redeemer_address;
+    pairs[1].item = "Value";
+    pairs[1].value = g_ui_state.validate_withdraw.value;
+
+    nbgl_useCaseReview(TYPE_TRANSACTION,
+                       &pairList,
+                       &C_Acre_64px,
+                       "Review transaction\nto withdraw Bitcoin",
+                       NULL,
+                       "Sign transaction\nto withdraw Bitcoin?",
+                       start_transaction_callback);
 }
 
 void ui_set_display_prompt(void) {
@@ -518,7 +536,7 @@ void ui_display_spend_from_wallet_flow(void) {
 
     nbgl_useCaseReviewLight(TYPE_OPERATION,
                             &pairList,
-                            &C_Bitcoin_64px,
+                            &C_Acre_64px,
                             "Spend from\nknown account",
                             NULL,
                             "Confirm account name",
@@ -529,7 +547,7 @@ void ui_display_spend_from_wallet_flow(void) {
 void ui_display_default_wallet_address_flow(void) {
     nbgl_useCaseAddressReview(g_ui_state.wallet.address,
                               NULL,
-                              &C_Bitcoin_64px,
+                              &C_Acre_64px,
                               "Verify Bitcoin\naddress",
                               NULL,
                               status_address_callback);
@@ -580,6 +598,15 @@ void ui_display_post_processing_confirm_message(bool success) {
     } else {
         ux_flow_response_false();
         nbgl_useCaseReviewStatus(STATUS_TYPE_MESSAGE_REJECTED, ui_menu_main);
+    }
+}
+void ui_display_post_processing_confirm_withdraw(bool success) {
+    if (success) {
+        ux_flow_response_true();
+        nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_SIGNED, ui_menu_main);
+    } else {
+        ux_flow_response_false();
+        nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_REJECTED, ui_menu_main);
     }
 }
 

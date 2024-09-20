@@ -91,6 +91,11 @@ const command_descriptor_t COMMAND_DESCRIPTORS[] = {
         .ins = SIGN_MESSAGE,
         .handler = (command_handler_t)handler_sign_message
     },
+    {
+        .cla = CLA_APP,
+        .ins = WITHDRAW,
+        .handler = (command_handler_t)handler_withdraw
+    },
 };
 // clang-format on
 
@@ -155,7 +160,7 @@ void app_main() {
                         &cmd);
 
         if (G_swap_state.called_from_swap && G_swap_state.should_exit) {
-            // Bitcoin app will keep listening as long as it does not receive a valid TX
+            // Acre app will keep listening as long as it does not receive a valid TX
             finalize_exchange_sign_transaction(true);
         }
     }

@@ -154,6 +154,34 @@ bool ui_display_message_confirm(dispatcher_context_t *context) {
     return io_ui_process(context, SET_UX_DIRTY);
 }
 
+bool ui_validate_withdraw_data_and_confirm(dispatcher_context_t *context,
+                                           const char *value,
+                                           const char *redeemer_address) {
+#ifdef HAVE_AUTOAPPROVE_FOR_PERF_TESTS
+    return true;
+#endif
+
+    ui_validate_withdraw_state_t *state = (ui_validate_withdraw_state_t *) &g_ui_state;
+    // copy the redeemer_address and value to the state
+    strncpy(state->value, value, sizeof(state->value));
+    strncpy(state->redeemer_address, redeemer_address, sizeof(state->redeemer_address));
+
+    ui_display_withdraw_content_flow();
+    // We're back at work, we want to show the "Processing..." screen when appropriate
+    io_start_processing_timeout();
+    return io_ui_process(context, SET_UX_DIRTY);
+}
+
+// bool ui_display_message_confirm(dispatcher_context_t *context) {
+// #ifdef HAVE_AUTOAPPROVE_FOR_PERF_TESTS
+//     return true;
+// #endif
+
+//     (void) context;
+//     ui_sign_message_confirm_flow();
+
+//     return io_ui_process(context, SET_UX_DIRTY);
+// }
 #ifdef HAVE_BAGL
 bool ui_display_register_wallet(dispatcher_context_t *context,
                                 const policy_map_wallet_header_t *wallet_header,
@@ -439,6 +467,11 @@ bool ui_post_processing_confirm_message(dispatcher_context_t *context, bool succ
     (void) success;
     return true;
 }
+bool ui_post_processing_confirm_withdraw(dispatcher_context_t *context, bool success) {
+    (void) context;
+    (void) success;
+    return true;
+}
 
 void ui_pre_processing_message(void) {
     return;
@@ -465,6 +498,17 @@ bool ui_post_processing_confirm_message(dispatcher_context_t *context, bool succ
 
     (void) context;
     ui_display_post_processing_confirm_message(success);
+
+    return true;
+}
+
+bool ui_post_processing_confirm_withdraw(dispatcher_context_t *context, bool success) {
+#ifdef HAVE_AUTOAPPROVE_FOR_PERF_TESTS
+    return true;
+#endif
+
+    (void) context;
+    ui_display_post_processing_confirm_withdraw(success);
 
     return true;
 }

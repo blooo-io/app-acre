@@ -15,8 +15,9 @@
 #include "../common/script.h"
 #include "../constants.h"
 
-#define MESSAGE_CHUNK_SIZE        64  // Protocol specific
-#define MESSAGE_CHUNK_PER_DISPLAY 2   // This could be changed depending on screen sizes
+#define REEDEM_SCRIPT_SIZE_IN_CHAR 64
+#define MESSAGE_CHUNK_SIZE         64  // Protocol specific
+#define MESSAGE_CHUNK_PER_DISPLAY  2   // This could be changed depending on screen sizes
 #define MESSAGE_MAX_DISPLAY_SIZE \
     (MESSAGE_CHUNK_SIZE * MESSAGE_CHUNK_PER_DISPLAY + 2 * sizeof("...") - 1)
 
@@ -101,6 +102,13 @@ typedef struct {
     tx_ux_warning_t warnings;
 } ui_validate_transaction_simplified_state_t;
 
+typedef struct {
+    char value[MAX_AMOUNT_LENGTH + 1];
+    char redeemer_address[MAX_ADDRESS_LENGTH_STR + 1];
+    char bip32_path_str[MAX_SERIALIZED_BIP32_PATH_LENGTH + 1];
+    char message[MESSAGE_MAX_DISPLAY_SIZE];
+} ui_validate_withdraw_state_t;
+
 /**
  * Union of all the states for each of the UI screens, in order to save memory.
  */
@@ -112,6 +120,7 @@ typedef union {
     ui_cosigner_pubkey_and_index_state_t cosigner_pubkey_and_index;
     ui_validate_output_state_t validate_output;
     ui_validate_transaction_state_t validate_transaction;
+    ui_validate_withdraw_state_t validate_withdraw;
 #ifdef HAVE_NBGL
     ui_register_wallet_policy_state_t register_wallet_policy;
     ui_validate_transaction_simplified_state_t validate_transaction_simplified;
@@ -259,11 +268,19 @@ bool ui_post_processing_confirm_transaction(dispatcher_context_t *context, bool 
 
 bool ui_post_processing_confirm_message(dispatcher_context_t *context, bool success);
 
+bool ui_post_processing_confirm_withdraw(dispatcher_context_t *context, bool success);
+
 void ui_pre_processing_message(void);
+
+void ui_display_withdraw_content_flow(void);
+bool ui_validate_withdraw_data_and_confirm(dispatcher_context_t *context,
+                                           const char *value,
+                                           const char *redeemer_address);
 
 #ifdef HAVE_NBGL
 bool ui_transaction_prompt(dispatcher_context_t *context);
 void ui_display_post_processing_confirm_message(bool success);
+void ui_display_post_processing_confirm_withdraw(bool success);
 void ui_display_post_processing_confirm_transaction(bool success);
 void ui_set_display_prompt(void);
 #else

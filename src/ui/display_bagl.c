@@ -259,6 +259,33 @@ UX_STEP_CB(ux_message_content_step,
                .text = g_ui_state.path_and_message.message,
            });
 
+//////////////////////////////////////////////////////////////////////
+UX_STEP_NOCB(ux_withdraw_step,
+             pnn,
+             {
+                 &C_icon_certificate,
+                 "Withdraw",
+             });
+
+UX_STEP_NOCB(ux_withdraw_display_value_step,
+             bnnn_paging,
+             {
+                 .title = "Value",
+                 .text = g_ui_state.validate_withdraw.value,
+             });
+
+UX_STEP_NOCB(ux_withdraw_display_redeemer_address_step,
+             bnnn_paging,
+             {
+                 .title = "Redeemer Address",
+                 .text = g_ui_state.validate_withdraw.redeemer_address,
+             });
+
+UX_STEP_CB(ux_withdraw_accept_step,
+           pbb,
+           set_ux_flow_response(true),
+           {&C_icon_validate_14, "Approve", "withdraw"});
+
 // FLOW to display BIP32 path to sign a message:
 // #1 screen: certificate icon + "Sign message"
 // #2 screen: display BIP32 Path
@@ -453,6 +480,19 @@ UX_FLOW(ux_accept_selftransfer_flow,
         &ux_sign_transaction_step,
         &ux_display_reject_step);
 
+// FLOW to data from withdraw tx:
+// #1 screen: certificate icon + "Withdraw"
+// #2 screen: value
+// #3 screen: redeemer_address
+// #4 screen: "Approve" button
+// #5 screen: "Reject" button
+UX_FLOW(ux_withdraw_display_data_flow,
+        &ux_withdraw_step,
+        &ux_withdraw_display_value_step,
+        &ux_withdraw_display_redeemer_address_step,
+        &ux_withdraw_accept_step,
+        &ux_display_reject_step);
+
 void ui_display_pubkey_flow(void) {
     ux_flow_init(0, ux_display_pubkey_flow, NULL);
 }
@@ -533,4 +573,7 @@ void ui_accept_transaction_flow(bool is_self_transfer) {
                  NULL);
 }
 
+void ui_display_withdraw_content_flow(void) {
+    ux_flow_init(0, ux_withdraw_display_data_flow, NULL);
+}
 #endif  // HAVE_BAGL
