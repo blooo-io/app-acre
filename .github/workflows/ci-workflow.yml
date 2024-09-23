@@ -40,20 +40,20 @@ jobs:
 
       - name: Build
         run: |
-          make DEBUG=0 COIN=bitcoin BOLOS_SDK=${{ matrix.SDK }} && mv bin/ bitcoin-bin/
+          make DEBUG=0 COIN=bitcoin BOLOS_SDK=${{ matrix.SDK }} && mv bin/ acre-bin/
           make clean
-          make DEBUG=0 COIN=bitcoin_testnet BOLOS_SDK=${{ matrix.SDK }} && mv bin/ bitcoin-testnet-bin/
-      - name: Upload Bitcoin app binary
+          make DEBUG=0 COIN=bitcoin_testnet BOLOS_SDK=${{ matrix.SDK }} && mv bin/ acre-testnet-bin/
+      - name: Upload Acre app binary
         uses: actions/upload-artifact@v4
         with:
-          name: bitcoin-app-${{ matrix.model }}
-          path: bitcoin-bin
+          name: acre-app-${{ matrix.model }}
+          path: acre-bin
 
-      - name: Upload Bitcoin Testnet app binary
+      - name: Upload Acre Testnet app binary
         uses: actions/upload-artifact@v4
         with:
-          name: bitcoin-testnet-app-${{ matrix.model }}
-          path: bitcoin-testnet-bin
+          name: acre-testnet-app-${{ matrix.model }}
+          path: acre-testnet-bin
 
   job_unit_test:
     name: Unit test
@@ -90,7 +90,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./unit-tests/coverage.info
           flags: unittests
-          name: codecov-app-bitcoin
+          name: app-acre
           fail_ci_if_error: true
           verbose: true
 
@@ -130,10 +130,10 @@ jobs:
       - name: Clone
         uses: actions/checkout@v2
 
-      - name: Download Bitcoin app binary
+      - name: Download Acre app binary
         uses: actions/download-artifact@v4
         with:
-          name: bitcoin-app-${{matrix.model}}
+          name: acre-app-${{matrix.model}}
           path: bin
 
       - name: Run tests
