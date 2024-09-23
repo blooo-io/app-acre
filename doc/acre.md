@@ -1,8 +1,4 @@
-# Bitcoin application: Technical Specifications
-
-This page details the protocol implemented since version 2.1.0 of the app.
-
-The protocol documentation for version from 2.0.0 and before 2.1.0 is [here](./v0/bitcoin.md) and is now deprecated.
+# Acre application: Technical Specifications
 
 ## Framework
 
@@ -10,7 +6,7 @@ The protocol documentation for version from 2.0.0 and before 2.1.0 is [here](./v
 
 The messaging format of the app is compatible with the [APDU protocol](https://developers.ledger.com/docs/nano-app/application-structure/#apdu-interpretation-loop). The `P1` field is reserved for future use and must be set to `0` in all messages. The `P2` field is used as a protocol version identifier; the current version is `1`, while version `0` is still supported. No other value must be used.
 
-The main commands use `CLA = 0xE1`, unlike the legacy Bitcoin application that used `CLA = 0xE0`.
+The main commands use `CLA = 0xE1`.
 
 | CLA | INS | COMMAND NAME           | DESCRIPTION |
 |-----|-----|------------------------|-------------|
@@ -37,7 +33,7 @@ The specs for the client commands are detailed below.
 
 ## Descriptors and wallet policies
 
-The Bitcoin app uses a language similar to [output script descriptors](https://github.com/bitcoin/bitcoin/blob/master/doc/descriptors.md) in order to represent the wallets that can be used to sign transactions.
+The Acre app uses a language similar to [output script descriptors](https://github.com/bitcoin/bitcoin/blob/master/doc/descriptors.md) in order to represent the wallets that can be used to sign transactions.
 Wallet policies need to be registered on the device, with an interactive process that requires user's approval.
 
 See [here](wallet.md) for detailed information on the wallet policy language.

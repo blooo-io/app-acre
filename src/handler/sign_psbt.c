@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Ledger App Bitcoin.
+ *   Ledger App Acre.
  *   (c) 2024 Ledger SAS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -304,12 +304,12 @@ static int __attribute__((noinline)) get_amount_scriptpubkey_from_psbt_nonwitnes
  a PSBTv2.
  Returns -1 on failure, 0 on success.
 */
-static int __attribute__((noinline))
-get_amount_scriptpubkey_from_psbt_witness(dispatcher_context_t *dc,
-                                          const merkleized_map_commitment_t *input_map,
-                                          uint64_t *amount,
-                                          uint8_t scriptPubKey[static MAX_PREVOUT_SCRIPTPUBKEY_LEN],
-                                          size_t *scriptPubKey_len) {
+static int __attribute__((noinline)) get_amount_scriptpubkey_from_psbt_witness(
+    dispatcher_context_t *dc,
+    const merkleized_map_commitment_t *input_map,
+    uint64_t *amount,
+    uint8_t scriptPubKey[static MAX_PREVOUT_SCRIPTPUBKEY_LEN],
+    size_t *scriptPubKey_len) {
     uint8_t raw_witnessUtxo[8 + 1 + MAX_PREVOUT_SCRIPTPUBKEY_LEN];
 
     int wit_utxo_len = call_get_merkleized_map_value(dc,
@@ -487,8 +487,8 @@ static int is_in_out_internal(dispatcher_context_t *dispatcher_context,
                                          in_out_info->scriptPubKey_len);
 }
 
-static bool __attribute__((noinline))
-init_global_state(dispatcher_context_t *dc, sign_psbt_state_t *st) {
+static bool __attribute__((noinline)) init_global_state(dispatcher_context_t *dc,
+                                                        sign_psbt_state_t *st) {
     LOG_PROCESSOR(__FILE__, __LINE__, __func__);
 
     merkleized_map_commitment_t global_map;
@@ -651,10 +651,10 @@ init_global_state(dispatcher_context_t *dc, sign_psbt_state_t *st) {
     return true;
 }
 
-static bool __attribute__((noinline))
-fill_placeholder_info_if_internal(dispatcher_context_t *dc,
-                                  sign_psbt_state_t *st,
-                                  placeholder_info_t *placeholder_info) {
+static bool __attribute__((noinline)) fill_placeholder_info_if_internal(
+    dispatcher_context_t *dc,
+    sign_psbt_state_t *st,
+    placeholder_info_t *placeholder_info) {
     policy_map_key_info_t key_info;
     {
         uint8_t key_info_str[MAX_POLICY_KEY_INFO_LEN];
@@ -791,10 +791,10 @@ static void input_keys_callback(dispatcher_context_t *dc,
     }
 }
 
-static bool __attribute__((noinline))
-preprocess_inputs(dispatcher_context_t *dc,
-                  sign_psbt_state_t *st,
-                  uint8_t internal_inputs[static BITVECTOR_REAL_SIZE(MAX_N_INPUTS_CAN_SIGN)]) {
+static bool __attribute__((noinline)) preprocess_inputs(
+    dispatcher_context_t *dc,
+    sign_psbt_state_t *st,
+    uint8_t internal_inputs[static BITVECTOR_REAL_SIZE(MAX_N_INPUTS_CAN_SIGN)]) {
     LOG_PROCESSOR(__FILE__, __LINE__, __func__);
 
     memset(internal_inputs, 0, BITVECTOR_REAL_SIZE(MAX_N_INPUTS_CAN_SIGN));
@@ -1039,10 +1039,10 @@ static void output_keys_callback(dispatcher_context_t *dc,
     }
 }
 
-static bool __attribute__((noinline))
-preprocess_outputs(dispatcher_context_t *dc,
-                   sign_psbt_state_t *st,
-                   uint8_t internal_outputs[static BITVECTOR_REAL_SIZE(MAX_N_OUTPUTS_CAN_SIGN)]) {
+static bool __attribute__((noinline)) preprocess_outputs(
+    dispatcher_context_t *dc,
+    sign_psbt_state_t *st,
+    uint8_t internal_outputs[static BITVECTOR_REAL_SIZE(MAX_N_OUTPUTS_CAN_SIGN)]) {
     /** OUTPUTS VERIFICATION FLOW
      *
      *  For each output, check if it's internal (that is, a change address).
@@ -1174,8 +1174,8 @@ preprocess_outputs(dispatcher_context_t *dc,
     return true;
 }
 
-static bool __attribute__((noinline))
-execute_swap_checks(dispatcher_context_t *dc, sign_psbt_state_t *st) {
+static bool __attribute__((noinline)) execute_swap_checks(dispatcher_context_t *dc,
+                                                          sign_psbt_state_t *st) {
     LOG_PROCESSOR(__FILE__, __LINE__, __func__);
 
     // Swap feature: check that wallet policy is a default one
@@ -1344,14 +1344,14 @@ execute_swap_checks(dispatcher_context_t *dc, sign_psbt_state_t *st) {
     return true;
 }
 
-static bool __attribute__((noinline))
-display_output(dispatcher_context_t *dc,
-               sign_psbt_state_t *st,
-               int cur_output_index,
-               int external_outputs_count,
-               const uint8_t out_scriptPubKey[static MAX_OUTPUT_SCRIPTPUBKEY_LEN],
-               size_t out_scriptPubKey_len,
-               uint64_t out_amount) {
+static bool __attribute__((noinline)) display_output(
+    dispatcher_context_t *dc,
+    sign_psbt_state_t *st,
+    int cur_output_index,
+    int external_outputs_count,
+    const uint8_t out_scriptPubKey[static MAX_OUTPUT_SCRIPTPUBKEY_LEN],
+    size_t out_scriptPubKey_len,
+    uint64_t out_amount) {
     (void) cur_output_index;
 
     // show this output's address
@@ -1490,8 +1490,8 @@ static bool __attribute__((noinline)) display_external_outputs(
     return true;
 }
 
-static bool __attribute__((noinline))
-display_warnings(dispatcher_context_t *dc, sign_psbt_state_t *st) {
+static bool __attribute__((noinline)) display_warnings(dispatcher_context_t *dc,
+                                                       sign_psbt_state_t *st) {
     // If there are external inputs, it is unsafe to sign, therefore we warn the user
     if (st->n_external_inputs > 0 && !ui_warn_external_inputs(dc)) {
         SEND_SW(dc, SW_DENY);
@@ -2125,13 +2125,13 @@ static bool __attribute__((noinline)) yield_signature(dispatcher_context_t *dc,
     return true;
 }
 
-static bool __attribute__((noinline))
-sign_sighash_ecdsa_and_yield(dispatcher_context_t *dc,
-                             sign_psbt_state_t *st,
-                             placeholder_info_t *placeholder_info,
-                             input_info_t *input,
-                             unsigned int cur_input_index,
-                             uint8_t sighash[static 32]) {
+static bool __attribute__((noinline)) sign_sighash_ecdsa_and_yield(
+    dispatcher_context_t *dc,
+    sign_psbt_state_t *st,
+    placeholder_info_t *placeholder_info,
+    input_info_t *input,
+    unsigned int cur_input_index,
+    uint8_t sighash[static 32]) {
     LOG_PROCESSOR(__FILE__, __LINE__, __func__);
 
     uint32_t sign_path[MAX_BIP32_PATH_STEPS];
@@ -2170,13 +2170,13 @@ sign_sighash_ecdsa_and_yield(dispatcher_context_t *dc,
     return true;
 }
 
-static bool __attribute__((noinline))
-sign_sighash_schnorr_and_yield(dispatcher_context_t *dc,
-                               sign_psbt_state_t *st,
-                               placeholder_info_t *placeholder_info,
-                               input_info_t *input,
-                               unsigned int cur_input_index,
-                               uint8_t sighash[static 32]) {
+static bool __attribute__((noinline)) sign_sighash_schnorr_and_yield(
+    dispatcher_context_t *dc,
+    sign_psbt_state_t *st,
+    placeholder_info_t *placeholder_info,
+    input_info_t *input,
+    unsigned int cur_input_index,
+    uint8_t sighash[static 32]) {
     LOG_PROCESSOR(__FILE__, __LINE__, __func__);
 
     if (st->wallet_policy_map->type != TOKEN_TR) {
@@ -2294,8 +2294,9 @@ sign_sighash_schnorr_and_yield(dispatcher_context_t *dc,
     return true;
 }
 
-static bool __attribute__((noinline))
-compute_segwit_hashes(dispatcher_context_t *dc, sign_psbt_state_t *st, segwit_hashes_t *hashes) {
+static bool __attribute__((noinline)) compute_segwit_hashes(dispatcher_context_t *dc,
+                                                            sign_psbt_state_t *st,
+                                                            segwit_hashes_t *hashes) {
     {
         // compute sha_prevouts and sha_sequences
         cx_sha256_t sha_prevouts_context, sha_sequences_context;
@@ -2598,12 +2599,12 @@ static bool __attribute__((noinline)) sign_transaction_input(dispatcher_context_
     return true;
 }
 
-static bool __attribute__((noinline))
-fill_taproot_placeholder_info(dispatcher_context_t *dc,
-                              sign_psbt_state_t *st,
-                              const input_info_t *input,
-                              const policy_node_t *tapleaf_ptr,
-                              placeholder_info_t *placeholder_info) {
+static bool __attribute__((noinline)) fill_taproot_placeholder_info(
+    dispatcher_context_t *dc,
+    sign_psbt_state_t *st,
+    const input_info_t *input,
+    const policy_node_t *tapleaf_ptr,
+    placeholder_info_t *placeholder_info) {
     cx_sha256_t hash_context;
     crypto_tr_tapleaf_hash_init(&hash_context);
 
@@ -2646,10 +2647,10 @@ fill_taproot_placeholder_info(dispatcher_context_t *dc,
     return true;
 }
 
-static bool __attribute__((noinline))
-sign_transaction(dispatcher_context_t *dc,
-                 sign_psbt_state_t *st,
-                 const uint8_t internal_inputs[static BITVECTOR_REAL_SIZE(MAX_N_INPUTS_CAN_SIGN)]) {
+static bool __attribute__((noinline)) sign_transaction(
+    dispatcher_context_t *dc,
+    sign_psbt_state_t *st,
+    const uint8_t internal_inputs[static BITVECTOR_REAL_SIZE(MAX_N_INPUTS_CAN_SIGN)]) {
     LOG_PROCESSOR(__FILE__, __LINE__, __func__);
 
     int placeholder_index = 0;

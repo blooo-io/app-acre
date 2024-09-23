@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Ledger App Bitcoin.
+ *   Ledger App Acre.
  *   (c) 2024 Ledger SAS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -164,7 +164,7 @@ static bool display_data_content_and_confirm(dispatcher_context_t* dc,
     // Concat the COIN_COINID_SHORT to the value
     // AMOUNT_SIZE_IN_CHARS + 1 space + 5 for the ticker + 1 for the null terminator
     char value_with_ticker[AMOUNT_SIZE_IN_CHARS + 1 + 5 + 1];
-    snprintf(value_with_ticker, sizeof(value_with_ticker), "st%s %s", COIN_COINID_SHORT, value);
+    snprintf(value_with_ticker, sizeof(value_with_ticker), "stBTC %s", value);
 
     // Trim the value of trailing zeros in a char of size of value
     int i = sizeof(value_with_ticker) - 1;
