@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Ledger App Bitcoin.
+ *   Ledger App Acre.
  *   (c) 2024 Ledger SAS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,8 +26,8 @@
 
 void ui_menu_main() {
     if (BIP32_PUBKEY_VERSION == BIP32_PUBKEY_VERSION_MAINNET) {  // mainnet
-        ui_menu_main_flow_acre();
+        ui_menu_main_flow_bitcoin();
     } else if (BIP32_PUBKEY_VERSION == BIP32_PUBKEY_VERSION_TESTNET) {  // testnet
-        ui_menu_main_flow_acre_testnet();
+        ui_menu_main_flow_bitcoin_testnet();
     }
 }

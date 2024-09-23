@@ -1,6 +1,7 @@
 from packaging.version import parse as parse_version
 from typing import Tuple, List, Mapping, Optional, Union
 import base64
+import math
 from io import BytesIO, BufferedReader
 
 from .embit.base import EmbitError 
@@ -292,7 +293,7 @@ class NewClient(Client):
         chunks.append(data_bytes.data[:4])
 
         # Calculate the number of 64-byte chunks needed for the remaining data
-        n_chunks_data = (len(data_bytes.data) - 4 + 63) // 64
+        n_chunks_data = math.ceil((len(data_bytes.data) - 4) / 64)
 
         # Chunk 5 to n: data[64]
         for i in range(n_chunks_data):
@@ -304,7 +305,7 @@ class NewClient(Client):
         sw, response = self._make_request(self.builder.sign_withdraw(data_bytes, bip32_path), client_intepreter)
 
         if sw != 0x9000:
-            raise DeviceException(error_code=sw, ins=BitcoinInsType.SIGN_MESSAGE)
+            raise DeviceException(error_code=sw, ins=BitcoinInsType.SIGN_WITHDRAW)
 
         return base64.b64encode(response).decode('utf-8')
 
@@ -324,17 +325,4 @@ def createClient(comm_client: Optional[TransportClient] = None, chain: Chain = C
     if comm_client is None:
         comm_client = TransportClient("hid")
 
-    base_client = Client(comm_client, chain, debug)
-    app_name, app_version, _ = base_client.get_version()
-
-    version = parse_version(app_version)
-
-    # Use the legacy client if either:
-    # - the name of the app is "Bitcoin Legacy" or "Bitcoin Test Legacy" (regardless of the version)
-    # - the version is strictly less than 2.1
-    use_legacy = app_name in ["Bitcoin Legacy", "Bitcoin Test Legacy"] or version.major < 2 or (version.major == 2 and version.minor == 0)
-
-    if use_legacy:
-        return LegacyClient(comm_client, chain, debug)
-    else:
-        return NewClient(comm_client, chain, debug)
+    return NewClient(comm_client, chain, debug)

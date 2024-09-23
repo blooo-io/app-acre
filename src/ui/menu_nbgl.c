@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Ledger App Bitcoin.
+ *   Ledger App Acre.
  *   (c) 2024 Ledger SAS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,7 +35,7 @@ static void exit(void) {
     os_sched_exit(-1);
 }
 
-void ui_menu_main_flow_acre(void) {
+void ui_menu_main_flow_bitcoin(void) {
     nbgl_useCaseHomeAndSettings(APPNAME,
                                 &C_Acre_64px,
                                 NULL,
@@ -46,7 +46,7 @@ void ui_menu_main_flow_acre(void) {
                                 exit);
 }
 
-void ui_menu_main_flow_acre_testnet(void) {
+void ui_menu_main_flow_bitcoin_testnet(void) {
     nbgl_useCaseHomeAndSettings(
         "Acre Testnet",
         &C_Acre_64px,
