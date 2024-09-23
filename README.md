@@ -55,6 +55,6 @@ The flow processed in [GitHub Actions](https://github.com/features/actions) is t
 
 It outputs 4 artifacts:
 
-- `bitcoin-app-debug` within output files of the compilation process in debug mode
+- `acre-app-debug` within output files of the compilation process in debug mode
 - `code-coverage` within HTML details of code coverage
 - `documentation` within HTML auto-generated documentation
