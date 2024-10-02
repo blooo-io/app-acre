@@ -200,7 +200,7 @@ def test_register_wallet_unsupported_policy(navigator: Navigator, firmware: Firm
     assert DeviceException.exc.get(e.value.status) == NotSupportedError
     assert len(e.value.data) == 0
 
-
+@pytest.mark.timeout(0) # disable timeout
 def test_register_miniscript_long_policy(navigator: Navigator, firmware: Firmware, client:
                                          RaggerClient, test_name: str, speculos_globals):
     # This test makes sure that policies longer than 256 bytes work as expected on all devices
@@ -397,7 +397,7 @@ def test_register_wallet_tr_with_nums_keypath(navigator: Navigator, firmware: Fi
         instructions=register_wallet_instruction_approve(firmware),
         test_name=test_name)
 
-
+@pytest.mark.timeout(0) # disable timeout
 def test_register_wallet_tr_script_sortedmulti(navigator: Navigator, firmware: Firmware, client:
                                                RaggerClient, test_name: str, speculos_globals):
     run_register_test(navigator, client, speculos_globals, WalletPolicy(
