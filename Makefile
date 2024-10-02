@@ -39,7 +39,7 @@ include $(BOLOS_SDK)/Makefile.defines
 CURVE_APP_LOAD_PARAMS = secp256k1
 
 # Application allowed derivation paths.
-PATH_APP_LOAD_PARAMS = ""
+PATH_APP_LOAD_PARAMS = "44'/0'" "44'/1'" "84'/0'" "84'/1'" "86'/0'" "86'/1'"
 
 # Allowed SLIP21 paths
 PATH_SLIP21_APP_LOAD_PARAMS = "LEDGER-Wallet policy"
@@ -76,7 +76,6 @@ endif
 #     Application custom permissions   #
 ########################################
 HAVE_APPLICATION_FLAG_DERIVE_MASTER = 1
-HAVE_APPLICATION_FLAG_GLOBAL_PIN = 1
 HAVE_APPLICATION_FLAG_BOLOS_SETTINGS = 1
 HAVE_APPLICATION_FLAG_LIBRARY = 1
 
