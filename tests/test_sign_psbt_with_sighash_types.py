@@ -284,7 +284,6 @@ def test_sighash_single_3_ins_2_out(navigator: Navigator, firmware: Firmware, cl
     assert DeviceException.exc.get(e.value.status) == NotSupportedError
     assert len(e.value.data) == 0
 
-@pytest.mark.timeout(0) # disable timeout
 def test_sighash_all_anyone_sign(navigator: Navigator, firmware: Firmware, client: RaggerClient, test_name: str):
     psbt = open_psbt_from_file(f"{tests_root}/psbt/sighash/sighash-all-anyone-can-pay-sign.psbt")
 
