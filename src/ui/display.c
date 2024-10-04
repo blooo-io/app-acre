@@ -172,16 +172,6 @@ bool ui_validate_withdraw_data_and_confirm(dispatcher_context_t *context,
     return io_ui_process(context, SET_UX_DIRTY);
 }
 
-// bool ui_display_message_confirm(dispatcher_context_t *context) {
-// #ifdef HAVE_AUTOAPPROVE_FOR_PERF_TESTS
-//     return true;
-// #endif
-
-//     (void) context;
-//     ui_sign_message_confirm_flow();
-
-//     return io_ui_process(context, SET_UX_DIRTY);
-// }
 #ifdef HAVE_BAGL
 bool ui_display_register_wallet(dispatcher_context_t *context,
                                 const policy_map_wallet_header_t *wallet_header,

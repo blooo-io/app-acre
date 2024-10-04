@@ -37,3 +37,4 @@ doc/html
 doc/latex
 
 tests/snapshots-tmp
+tests/bitcoin

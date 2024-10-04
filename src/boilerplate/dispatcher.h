@@ -30,6 +30,15 @@ static inline void SEND_SW(struct dispatcher_context_s *dc, uint16_t sw) {
     dc->send_response();
 }
 
+#define SAFE_SEND_SW(dc, sw)                            \
+    do {                                                \
+        if (dc != NULL) {                               \
+            SEND_SW(dc, sw);                            \
+        } else {                                        \
+            PRINTF("Error: Null dispatcher context\n"); \
+        }                                               \
+    } while (0)
+
 static inline void SET_RESPONSE(struct dispatcher_context_s *dc,
                                 void *rdata,
                                 size_t rdata_len,
