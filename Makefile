@@ -65,11 +65,11 @@ endif
 
 # Setting to allow building variant applications
 VARIANT_PARAM = COIN
-VARIANT_VALUES = bitcoin_testnet bitcoin
+VARIANT_VALUES = acre_testnet acre
 
 # simplify for tests
 ifndef COIN
-COIN=bitcoin_testnet
+COIN=acre_testnet
 endif
 
 ########################################
@@ -79,7 +79,7 @@ HAVE_APPLICATION_FLAG_DERIVE_MASTER = 1
 HAVE_APPLICATION_FLAG_BOLOS_SETTINGS = 1
 HAVE_APPLICATION_FLAG_LIBRARY = 1
 
-ifeq ($(COIN),bitcoin_testnet)
+ifeq ($(COIN),acre_testnet)
     # Bitcoin testnet, no legacy support
     DEFINES   += BIP32_PUBKEY_VERSION=0x043587CF
     DEFINES   += BIP44_COIN_TYPE=1
@@ -89,7 +89,7 @@ ifeq ($(COIN),bitcoin_testnet)
     DEFINES   += COIN_COINID_SHORT=\"TEST\"
 
     APPNAME = "Acre Test"
-else ifeq ($(COIN),bitcoin)
+else ifeq ($(COIN),acre)
     # the version for performance tests automatically approves all requests
     # there is no reason to ever compile the mainnet app with this flag
     ifneq ($(AUTOAPPROVE_FOR_PERF_TESTS),0)
@@ -108,7 +108,7 @@ else ifeq ($(COIN),bitcoin)
 
 else
     ifeq ($(filter clean,$(MAKECMDGOALS)),)
-        $(error Unsupported COIN - use bitcoin_testnet, bitcoin)
+        $(error Unsupported COIN - use acre_testnet, acre)
     endif
 endif
 
