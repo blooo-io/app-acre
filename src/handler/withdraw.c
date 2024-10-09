@@ -214,7 +214,7 @@ static bool display_data_content_and_confirm(dispatcher_context_t* dc,
         PRINTF("Error: Address type or address length is invalid\n");
         SEND_SW(dc, SW_INCORRECT_DATA);
         if (!ui_post_processing_confirm_withdraw(dc, false)) {
-            PRINTF("Issue in ui_post_processing_confirm_withdraw");
+            PRINTF("Error in ui_post_processing_confirm_withdraw");
         }
         return false;
     }
@@ -225,7 +225,7 @@ static bool display_data_content_and_confirm(dispatcher_context_t* dc,
                        address_type)) {
         SEND_SW(dc, SW_INCORRECT_DATA);
         if (!ui_post_processing_confirm_withdraw(dc, false)) {
-            PRINTF("Issue in ui_post_processing_confirm_withdraw");
+            PRINTF("Error in ui_post_processing_confirm_withdraw");
         }
         return false;
     }
@@ -303,7 +303,7 @@ void fetch_and_add_chunk_to_hash(dispatcher_context_t* dc,
     if (current_chunk_len < 0) {
         SAFE_SEND_SW(dc, SW_WRONG_DATA_LENGTH);
         if (!ui_post_processing_confirm_withdraw(dc, false)) {
-            PRINTF("Issue in ui_post_processing_confirm_withdraw");
+            PRINTF("Error in ui_post_processing_confirm_withdraw");
         }
         return;
     }
@@ -358,7 +358,7 @@ void fetch_and_add_chunk_to_buffer(dispatcher_context_t* dc,
     if (current_chunk_len < 0) {
         SAFE_SEND_SW(dc, SW_WRONG_DATA_LENGTH);
         if (!ui_post_processing_confirm_withdraw(dc, false)) {
-            PRINTF("Issue in ui_post_processing_confirm_withdraw");
+            PRINTF("Error in ui_post_processing_confirm_withdraw");
         }
         return;
     }
@@ -592,7 +592,7 @@ uint32_t sign_tx_hash(dispatcher_context_t* dc,
         // unexpected error when signing
         SAFE_SEND_SW(dc, SW_BAD_STATE);
         if (!ui_post_processing_confirm_withdraw(dc, false)) {
-            PRINTF("Issue in ui_post_processing_confirm_withdraw");
+            PRINTF("Error in ui_post_processing_confirm_withdraw");
         }
         return -1;
     }
@@ -646,7 +646,7 @@ void handler_withdraw(dispatcher_context_t* dc, uint8_t protocol_version) {
         !buffer_read_bytes(&dc->read_buffer, data_merkle_root, 32)) {
         SEND_SW(dc, SW_WRONG_DATA_LENGTH);
         if (!ui_post_processing_confirm_withdraw(dc, false)) {
-            PRINTF("Issue in ui_post_processing_confirm_withdraw");
+            PRINTF("Error in ui_post_processing_confirm_withdraw");
         }
         return;
     }
@@ -654,7 +654,7 @@ void handler_withdraw(dispatcher_context_t* dc, uint8_t protocol_version) {
     if (bip32_path_len > MAX_BIP32_PATH_STEPS) {
         SEND_SW(dc, SW_INCORRECT_DATA);
         if (!ui_post_processing_confirm_withdraw(dc, false)) {
-            PRINTF("Issue in ui_post_processing_confirm_withdraw");
+            PRINTF("Error in ui_post_processing_confirm_withdraw");
         }
         return;
     }
@@ -672,7 +672,7 @@ void handler_withdraw(dispatcher_context_t* dc, uint8_t protocol_version) {
                                           bip32_path_len)) {
         SEND_SW(dc, SW_DENY);
         if (!ui_post_processing_confirm_withdraw(dc, false)) {
-            PRINTF("Issue in ui_post_processing_confirm_withdraw");
+            PRINTF("Error in ui_post_processing_confirm_withdraw");
         }
         return;
     }
@@ -687,7 +687,7 @@ void handler_withdraw(dispatcher_context_t* dc, uint8_t protocol_version) {
     if (!format_hex(tx_hash, KECCAK_256_HASH_SIZE, tx_hash_str, sizeof(tx_hash_str))) {
         SEND_SW(dc, SW_BAD_STATE);
         if (!ui_post_processing_confirm_withdraw(dc, false)) {
-            PRINTF("Issue in ui_post_processing_confirm_withdraw");
+            PRINTF("Error in ui_post_processing_confirm_withdraw");
         }
         return;
     };
@@ -708,7 +708,7 @@ void handler_withdraw(dispatcher_context_t* dc, uint8_t protocol_version) {
     if (r_length > 33 || s_length > 33) {
         SEND_SW(dc, SW_BAD_STATE);  // can never happen
         if (!ui_post_processing_confirm_withdraw(dc, false)) {
-            PRINTF("Issue in ui_post_processing_confirm_withdraw");
+            PRINTF("Error in ui_post_processing_confirm_withdraw");
         }
         return;
     }
@@ -726,7 +726,7 @@ void handler_withdraw(dispatcher_context_t* dc, uint8_t protocol_version) {
 
     SEND_RESPONSE(dc, result, sizeof(result), SW_OK);
     if (!ui_post_processing_confirm_withdraw(dc, true)) {
-        PRINTF("Issue in ui_post_processing_confirm_withdraw");
+        PRINTF("Error in ui_post_processing_confirm_withdraw");
     }
     return;
 }
