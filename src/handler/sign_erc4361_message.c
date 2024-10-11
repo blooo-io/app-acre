@@ -14,16 +14,25 @@
 
 #include "handlers.h"
 
-#define MESSAGE_CHUNK_SIZE  64
-#define MAX_DOMAIN_LENGTH   64
-#define MAX_URI_LENGTH      64
-#define MAX_VERSION_LENGTH  5
-#define MAX_NONCE_LENGTH    32
-#define MAX_DATETIME_LENGTH 32
+#define MESSAGE_CHUNK_SIZE    64
+#define MAX_DOMAIN_LENGTH     64
+#define MAX_URI_LENGTH        64
+#define MAX_VERSION_LENGTH    5
+#define MAX_NONCE_LENGTH      32
+#define MAX_DATETIME_LENGTH   32
+#define MAX_FIELD_NAME_LENGTH 18
 
 // static unsigned char const BSM_SIGN_MAGIC[] = {'\x18', 'B', 'i', 't', 'c', 'o', 'i', 'n', ' ',
 //                                                'S',    'i', 'g', 'n', 'e', 'd', ' ', 'M', 'e',
 //                                                's',    's', 'a', 'g', 'e', ':', '\n'};
+
+typedef struct {
+    const char *name;
+    size_t name_length;
+    char *output;
+    size_t max_length;
+    bool *found_flag;
+} ERC4361Field;
 
 static size_t parse_field(const uint8_t *buffer,
                           size_t buffer_len,
@@ -97,6 +106,15 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
     bool expiration_time_found = false;
 
     unsigned int chunk_index = 0;
+    ERC4361Field fields[] = {
+        {"URI: ", 5, uri, MAX_URI_LENGTH, &uri_found},
+        {"Version: ", 9, version, MAX_VERSION_LENGTH, &version_found},
+        {"Nonce: ", 7, nonce, MAX_NONCE_LENGTH, &nonce_found},
+        {"Issued At: ", 11, issued_at, MAX_DATETIME_LENGTH, &issued_at_found},
+        {"Expiration Time: ", 17, expiration_time, MAX_DATETIME_LENGTH, &expiration_time_found},
+    };
+    const size_t num_fields = sizeof(fields) / sizeof(fields[0]);
+
     while ((chunk_index < n_chunks || total_bytes_read < message_length) && !parsing_done) {
         PRINTF("Chunk index: %u\n", chunk_index);
         int chunk_len = 0;
@@ -139,48 +157,19 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
 
         // Lines 2 and 3 are empty
         if (current_line >= 4) {
-            if (!uri_found && parsing_buffer_len >= 5 && memcmp(parsing_buffer, "URI: ", 5) == 0) {
-                size_t uri_length =
-                    parse_field(parsing_buffer + 5, parsing_buffer_len - 5, uri, MAX_URI_LENGTH);
-                total_bytes_read += uri_length + 5;  // +5 for "URI: "
-                uri_found = true;
-                PRINTF("URI: %s\n", uri);
-            } else if (!version_found && parsing_buffer_len >= 9 &&
-                       memcmp(parsing_buffer, "Version: ", 9) == 0) {
-                size_t version_length = parse_field(parsing_buffer + 9,
-                                                    parsing_buffer_len - 9,
-                                                    version,
-                                                    MAX_VERSION_LENGTH);
-                total_bytes_read += version_length + 9;  // +9 for "Version: "
-                version_found = true;
-                PRINTF("Version: %s\n", version);
-            } else if (!nonce_found && parsing_buffer_len >= 7 &&
-                       memcmp(parsing_buffer, "Nonce: ", 7) == 0) {
-                size_t nonce_length = parse_field(parsing_buffer + 7,
-                                                  parsing_buffer_len - 7,
-                                                  nonce,
-                                                  MAX_NONCE_LENGTH);
-                total_bytes_read += nonce_length + 7;  // +7 for "Nonce: "
-                nonce_found = true;
-                PRINTF("Nonce: %s\n", nonce);
-            } else if (!issued_at_found && parsing_buffer_len >= 11 &&
-                       memcmp(parsing_buffer, "Issued At: ", 11) == 0) {
-                size_t issued_at_length = parse_field(parsing_buffer + 11,
-                                                      parsing_buffer_len - 11,
-                                                      issued_at,
-                                                      MAX_DATETIME_LENGTH);
-                total_bytes_read += issued_at_length + 11;  // +11 for "Issued At: "
-                issued_at_found = true;
-                PRINTF("Issued At: %s\n", issued_at);
-            } else if (!expiration_time_found && parsing_buffer_len >= 18 &&
-                       memcmp(parsing_buffer, "Expiration Time: ", 17) == 0) {
-                size_t expiration_time_length = parse_field(parsing_buffer + 17,
-                                                            parsing_buffer_len - 17,
-                                                            expiration_time,
-                                                            MAX_DATETIME_LENGTH);
-                total_bytes_read += expiration_time_length + 17;  // +17 for "Expiration Time: "
-                expiration_time_found = true;
-                PRINTF("Expiration Time: %s\n", expiration_time);
+            for (size_t i = 0; i < num_fields; i++) {
+                ERC4361Field *field = &fields[i];
+                if (!*field->found_flag && parsing_buffer_len >= field->name_length &&
+                    memcmp(parsing_buffer, field->name, field->name_length) == 0) {
+                    size_t field_length = parse_field(parsing_buffer + field->name_length,
+                                                      parsing_buffer_len - field->name_length,
+                                                      field->output,
+                                                      field->max_length);
+                    total_bytes_read += field_length + field->name_length;
+                    *field->found_flag = true;
+                    PRINTF("%s%s\n", field->name, field->output);
+                    break;
+                }
             }
         }
 
