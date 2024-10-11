@@ -14,12 +14,7 @@
 
 #include "handlers.h"
 
-#define MESSAGE_CHUNK_SIZE  64
-#define MAX_DOMAIN_LENGTH   64
-#define MAX_URI_LENGTH      64
-#define MAX_VERSION_LENGTH  5
-#define MAX_NONCE_LENGTH    32
-#define MAX_DATETIME_LENGTH 32
+#define MESSAGE_CHUNK_SIZE 64
 
 // static unsigned char const BSM_SIGN_MAGIC[] = {'\x18', 'B', 'i', 't', 'c', 'o', 'i', 'n', ' ',
 //                                                'S',    'i', 'g', 'n', 'e', 'd', ' ', 'M', 'e',
@@ -206,9 +201,22 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
             }
         }
     }
-
-    // TODO: Implement the rest of the sign_erc4361_message logic here
+    // DISPLAY UI
+    if (!ui_validate_erc4361_data_and_confirm(dc,
+                                              domain,
+                                              address,
+                                              uri,
+                                              version,
+                                              nonce,
+                                              issued_at,
+                                              expiration_time)) {
+        SEND_SW(dc, SW_DENY);
+        ui_post_processing_confirm_message(dc, false);
+        return;
+    }
+    // TODO: IMPLEMENT SIGNING LOGIC
 
     // For now, we'll just send a "ok" status word
     SEND_SW(dc, SW_OK);
+    ui_post_processing_confirm_message(dc, true);
 }
