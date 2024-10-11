@@ -139,6 +139,13 @@ typedef union {
 } ui_state_t;
 extern ui_state_t g_ui_state;
 
+// Used for dynamic UX flow
+typedef struct {
+    const char *label;
+    const char *value;
+    bool is_empty;
+} param_t;
+
 /**
  * Callback to reuse action with approve/reject in step FLOW.
  */

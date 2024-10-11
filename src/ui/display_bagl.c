@@ -644,8 +644,57 @@ void ui_display_withdraw_content_flow(void) {
     ux_flow_init(0, ux_withdraw_display_data_flow, NULL);
 }
 
+// Function to create UX flow dynamically
+void create_ux_flow(param_t params[], size_t num_params) {
+    // Array of UI steps
+    const ux_flow_step_t *flow_steps[7];  // 7 parameters + 1 ending step
+    int step_index;
+
+    // Loop over the parameters and add non-empty ones
+    for (step_index = 0; step_index < num_params; step_index++) {
+        if (!params[step_index].is_empty) {
+            if (strcmp(params[step_index].label, "Domain") == 0) {
+                flow_steps[step_index] = &ux_display_erc4361_domain_step;
+            } else if (strcmp(params[step_index].label, "Address") == 0) {
+                flow_steps[step_index] = &ux_display_erc4361_address_step;
+            } else if (strcmp(params[step_index].label, "URI") == 0) {
+                flow_steps[step_index] = &ux_display_erc4361_uri_step;
+            } else if (strcmp(params[step_index].label, "Version") == 0) {
+                flow_steps[step_index] = &ux_display_erc4361_version_step;
+            } else if (strcmp(params[step_index].label, "Nonce") == 0) {
+                flow_steps[step_index] = &ux_display_erc4361_nonce_step;
+            } else if (strcmp(params[step_index].label, "Issued at") == 0) {
+                flow_steps[step_index] = &ux_display_erc4361_issued_at_step;
+            } else if (strcmp(params[step_index].label, "Expiration time") == 0) {
+                flow_steps[step_index] = &ux_display_erc4361_expiration_time_step;
+            } else {
+                // Handle unknown parameter
+                PRINTF("Unknown parameter: %s\n", params[step_index].label);
+                continue;
+            }
+        }
+    }
+
+    // Add the final step to end the flow
+
+    flow_steps[step_index] = &ux_display_approve_step;
+    flow_steps[step_index + 1] = &ux_display_reject_step;
+
+    // Start the dynamic UX flow
+    ux_flow_init(0, flow_steps, NULL);
+}
+
 void ui_display_erc4361_content_flow(void) {
-    ux_flow_init(0, ux_display_erc4361_content_flow, NULL);
+    param_t params[] = {
+        {"Domain", g_ui_state.validate_erc4361.domain, true},
+        {"Address", g_ui_state.validate_erc4361.address, true},
+        {"URI", g_ui_state.validate_erc4361.uri, true},
+        {"Version", g_ui_state.validate_erc4361.version, false},
+        {"Nonce", g_ui_state.validate_erc4361.nonce, false},
+        {"Issued at", g_ui_state.validate_erc4361.issued_at, false},
+        {"Expiration time", g_ui_state.validate_erc4361.expiration_time, false},
+    };
+    create_ux_flow(params, sizeof(params));
 }
 
 #endif  // HAVE_BAGL
