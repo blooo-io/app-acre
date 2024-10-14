@@ -109,6 +109,16 @@ typedef struct {
     char message[MESSAGE_MAX_DISPLAY_SIZE];
 } ui_validate_withdraw_state_t;
 
+typedef struct {
+    char domain[MAX_DOMAIN_LENGTH + 1];
+    char address[MAX_ADDRESS_LENGTH_STR + 1];
+    char uri[MAX_URI_LENGTH + 1];
+    char version[MAX_VERSION_LENGTH + 1];
+    char nonce[MAX_NONCE_LENGTH + 1];
+    char issued_at[MAX_DATETIME_LENGTH + 1];
+    char expiration_time[MAX_DATETIME_LENGTH + 1];
+} ui_validate_erc4361_state_t;
+
 /**
  * Union of all the states for each of the UI screens, in order to save memory.
  */
@@ -121,6 +131,7 @@ typedef union {
     ui_validate_output_state_t validate_output;
     ui_validate_transaction_state_t validate_transaction;
     ui_validate_withdraw_state_t validate_withdraw;
+    ui_validate_erc4361_state_t validate_erc4361;
 #ifdef HAVE_NBGL
     ui_register_wallet_policy_state_t register_wallet_policy;
     ui_validate_transaction_simplified_state_t validate_transaction_simplified;
@@ -276,11 +287,21 @@ void ui_display_withdraw_content_flow(void);
 bool ui_validate_withdraw_data_and_confirm(dispatcher_context_t *context,
                                            const char *value,
                                            const char *redeemer_address);
+void ui_display_erc4361_content_flow(void);
+bool ui_validate_erc4361_data_and_confirm(dispatcher_context_t *context,
+                                          const char *domain,
+                                          const char *address,
+                                          const char *uri,
+                                          const char *version,
+                                          const char *nonce,
+                                          const char *issued_at,
+                                          const char *expiration_time);
 
 #ifdef HAVE_NBGL
 bool ui_transaction_prompt(dispatcher_context_t *context);
 void ui_display_post_processing_confirm_message(bool success);
 void ui_display_post_processing_confirm_withdraw(bool success);
+void ui_display_post_processing_confirm_erc4361(bool success);
 void ui_display_post_processing_confirm_transaction(bool success);
 void ui_set_display_prompt(void);
 #else

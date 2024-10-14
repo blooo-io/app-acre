@@ -230,22 +230,19 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
     }
 
 #ifndef HAVE_AUTOAPPROVE_FOR_PERF_TESTS
-    // TODO: implement display here
-    // ui_pre_processing_message();
-    // if (printable) {
-    //     if (!display_message_content_and_confirm(dc,
-    //                                              message_merkle_root,
-    //                                              n_chunks,
-    //                                              (uint8_t*) path_str)) {
-    //         SEND_SW(dc, SW_DENY);
-    //         return;
-    //     }
-    // } else {
-    //     if (!ui_display_message_path_hash_and_confirm(dc, path_str, message_hash_str)) {
-    //         SEND_SW(dc, SW_DENY);
-    //         return;
-    //     }
-    // }
+    // DISPLAY UI
+    if (!ui_validate_erc4361_data_and_confirm(dc,
+                                              domain,
+                                              address,
+                                              uri,
+                                              version,
+                                              nonce,
+                                              issued_at,
+                                              expiration_time)) {
+        SEND_SW(dc, SW_DENY);
+        ui_post_processing_confirm_message(dc, false);
+        return;
+    }
 #endif
     uint8_t sig[MAX_DER_SIG_LEN];
 
@@ -291,10 +288,7 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
         result[0] = 27 + 4 + ((info & CX_ECCINFO_PARITY_ODD) ? 1 : 0);
 
         SEND_RESPONSE(dc, result, sizeof(result), SW_OK);
-        // ui_post_processing_confirm_erc4361_message(dc, true);
+        ui_post_processing_confirm_message(dc, true);
         return;
     }
-
-    // For now, we'll just send a "ok" status word
-    SEND_SW(dc, SW_OK);
 }

@@ -51,6 +51,14 @@
  */
 #define MAX_N_OUTPUTS_CAN_SIGN 512
 
+// ERC4361 message constants
+#define MESSAGE_CHUNK_SIZE  64
+#define MAX_DOMAIN_LENGTH   64
+#define MAX_URI_LENGTH      64
+#define MAX_VERSION_LENGTH  5
+#define MAX_NONCE_LENGTH    32
+#define MAX_DATETIME_LENGTH 32
+
 // SIGHASH flags
 #define SIGHASH_DEFAULT      0x00000000
 #define SIGHASH_ALL          0x00000001
