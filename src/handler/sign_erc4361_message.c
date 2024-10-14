@@ -158,9 +158,24 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
         // Copy leftover and new chunk into parsing buffer
         memset(parsing_buffer, 0, sizeof(parsing_buffer));
         memcpy(parsing_buffer, leftover, leftover_len);
-        memcpy(parsing_buffer + leftover_len, message_chunk, chunk_len);
-        parsing_buffer_len = leftover_len + chunk_len;
+        size_t bytes_to_copy = MIN((size_t) chunk_len, sizeof(parsing_buffer) - leftover_len);
+        memcpy(parsing_buffer + leftover_len, message_chunk, bytes_to_copy);
+        parsing_buffer_len = leftover_len + bytes_to_copy;
         leftover_len = 0;
+
+        if (!has_newline((const char *) parsing_buffer, parsing_buffer_len) &&
+            chunk_index < n_chunks - 1) {
+            PRINTF("No newline found in parsing buffer\n");
+            leftover_len = parsing_buffer_len - (total_bytes_read - line_start);
+            if (leftover_len <= MESSAGE_CHUNK_SIZE) {
+                memcpy(leftover, parsing_buffer + parsing_buffer_len - leftover_len, leftover_len);
+            } else {
+                PRINTF("Error: line length exceeds 128 bytes\n");
+                SEND_SW(dc, SW_INCORRECT_DATA);
+                return;
+            }
+            continue;
+        }
 
         if (current_line == 0) {
             size_t domain_length =
