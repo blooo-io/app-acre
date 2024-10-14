@@ -287,7 +287,15 @@ UX_STEP_CB(ux_withdraw_accept_step,
            set_ux_flow_response(true),
            {&C_icon_validate_14, "Approve", "withdraw"});
 
-// STEPS to display ERC4361 the 7 fields
+//////////////////////////////////////////////////////////////////////
+UX_STEP_NOCB(ux_display_erc4361_step,
+             pnn,
+             {
+                 &C_icon_certificate,
+                 "Sign ERC-4361",
+                 "message",
+             });
+
 UX_STEP_NOCB(ux_display_erc4361_domain_step,
              bnnn_paging,
              {
@@ -539,17 +547,19 @@ UX_FLOW(ux_withdraw_display_data_flow,
         &ux_withdraw_accept_step,
         &ux_display_reject_step);
 
-// FLOW to display ERC4361 the 7 fields:
-// #1 screen: display Domain
-// #2 screen: display Address
-// #3 screen: display URI
-// #4 screen: display Version
-// #5 screen: display Nonce
-// #6 screen: display Issued at
-// #7 screen: display Expiration time
-// #8 screen: "Approve" button
-// #9 screen: "Reject" button
+// FLOW to display ERC4361:
+// #1 screen: certificate icon + "Sign ERC-4361"
+// #2 screen: display Domain
+// #3 screen: display Address
+// #4 screen: display URI
+// #5 screen: display Version
+// #6 screen: display Nonce
+// #7 screen: display Issued at
+// #8 screen: display Expiration time
+// #9 screen: "Approve" button
+// #10 screen: "Reject" button
 UX_FLOW(ux_display_erc4361_content_flow,
+        &ux_display_erc4361_step,
         &ux_display_erc4361_domain_step,
         &ux_display_erc4361_address_step,
         &ux_display_erc4361_uri_step,
