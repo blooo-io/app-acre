@@ -1,10 +1,12 @@
-# End-to-end tests
+# End-to-end Tests
 
-These tests are implemented in Python and can be executed either using the [Speculos](https://github.com/LedgerHQ/speculos) emulator or a Ledger Nano S/X.
+These tests are implemented in Python and can be executed using either the [Speculos](https://github.com/LedgerHQ/speculos) emulator or a physical Ledger Nano X/SP/Flex or Stax device. The tests require an x86_64 architecture.
+
+Note: If you're using the Ledger Developer Extension, some tests (those containing "e2e" in their names) may not run properly due to missing libraries in the Docker image.
 
 All the commands in this folder are meant to be ran from the `tests` folder, not from the root.
 
-Python dependencies are listed in [requirements.txt](requirements.txt), install them using [pip](https://pypi.org/project/pip/)
+Python dependencies are listed in [requirements.txt](requirements.txt), install them using [pip](https://pypi.org/project/pip/).
 
 ```
 pip install -r requirements.txt
@@ -14,6 +16,13 @@ Some tests require the `bitcoind 22.0` binary to be in the `$PATH` variable, or 
 
 ```
 export BITCOIND=/path/to/my/bitcoind
+```
+
+You may also need to install the following dependencies to run the end to end tests:
+
+```
+sudo apt-get update && sudo apt-get install -y qemu-user-static tesseract-ocr libtesseract-dev
+pip install -U pip setuptools
 ```
 
 ## Launch with Speculos
@@ -29,6 +38,7 @@ Then run all the tests from this folder, specifying the device: nanox, nanosp, s
 ```
 pytest --device yourdevice
 ```
+
 You can enable the screen display with the option `--display`
 
 ## Launch with your Nano S/X/SP or Stax

@@ -40,9 +40,9 @@ jobs:
 
       - name: Build
         run: |
-          make DEBUG=0 COIN=bitcoin BOLOS_SDK=${{ matrix.SDK }} && mv bin/ acre-bin/
+          make DEBUG=0 COIN=acre BOLOS_SDK=${{ matrix.SDK }} && mv bin/ acre-bin/
           make clean
-          make DEBUG=0 COIN=bitcoin_testnet BOLOS_SDK=${{ matrix.SDK }} && mv bin/ acre-testnet-bin/
+          make DEBUG=0 COIN=acre_testnet BOLOS_SDK=${{ matrix.SDK }} && mv bin/ acre-testnet-bin/
       - name: Upload Acre app binary
         uses: actions/upload-artifact@v4
         with:
