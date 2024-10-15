@@ -3,6 +3,16 @@ from ragger.firmware import Firmware
 
 from ragger_bitcoin.ragger_instructions import Instructions
 
+def erc4361_message_instruction_approve(model: Firmware, save_screenshot=True) -> Instructions:
+    instructions = Instructions(model)
+
+    if model.name.startswith("nano"):
+        instructions.new_request("Approve", save_screenshot=save_screenshot)
+    else:
+        instructions.confirm_erc4361_message(save_screenshot=save_screenshot)
+
+    return instructions
+
 
 def withdrawal_instruction_approve(model: Firmware, save_screenshot=True) -> Instructions:
     instructions = Instructions(model)

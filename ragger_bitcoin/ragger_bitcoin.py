@@ -233,7 +233,24 @@ class RaggerClient(NewClient):
         self.navigate = False
 
         return response
+    
+    def sign_erc4361_message(self, message: Union[str, bytes], bip32_path: str, navigator:
+                     Optional[Navigator] = None,
+                     instructions: Instructions = None,
+                     testname: str = ""
+                     ) -> str:
 
+        if navigator:
+            self.navigate = True
+            self.navigator = navigator
+            self.testname = testname
+            self.instructions = instructions
+
+        response = NewClient.sign_erc4361_message(self, message, bip32_path)
+
+        self.navigate = False
+
+        return response
 
 def createRaggerClient(backend, chain: Chain = Chain.MAIN, debug: bool = False, screenshot_dir:
                        Path = TESTS_ROOT_DIR) -> RaggerClient:

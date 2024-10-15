@@ -40,7 +40,7 @@ class BitcoinInsType(enum.IntEnum):
     GET_MASTER_FINGERPRINT = 0x05
     SIGN_MESSAGE = 0x10
     SIGN_WITHDRAW = 0x11
-
+    SIGN_ERC4361_MESSAGE = 0x12
 class FrameworkInsType(enum.IntEnum):
     CONTINUE_INTERRUPTED = 0x01
 
@@ -234,6 +234,28 @@ class BitcoinCommandBuilder:
         return self.serialize(
             cla=self.CLA_BITCOIN,
             ins=BitcoinInsType.SIGN_WITHDRAW,
+            cdata=bytes(cdata)
+        )
+    
+    def sign_erc4361_message(self, message: bytes, bip32_path: str):
+        cdata = bytearray()
+
+        bip32_path: List[bytes] = bip32_path_from_string(bip32_path)
+
+        # split message in 64-byte chunks (last chunk can be smaller)
+        n_chunks = (len(message) + 63) // 64
+        chunks = [message[64 * i: 64 * i + 64] for i in range(n_chunks)]
+
+        cdata += len(bip32_path).to_bytes(1, byteorder="big")
+        cdata += b''.join(bip32_path)
+
+        cdata += write_varint(len(message))
+
+        cdata += MerkleTree(element_hash(c) for c in chunks).root
+
+        return self.serialize(
+            cla=self.CLA_BITCOIN,
+            ins=BitcoinInsType.SIGN_ERC4361_MESSAGE,
             cdata=bytes(cdata)
         )
 

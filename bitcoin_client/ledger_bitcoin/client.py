@@ -308,6 +308,24 @@ class NewClient(Client):
             raise DeviceException(error_code=sw, ins=BitcoinInsType.SIGN_WITHDRAW)
 
         return base64.b64encode(response).decode('utf-8')
+    
+    def sign_erc4361_message(self, message: Union[str, bytes], bip32_path: str) -> str:
+        if isinstance(message, str):
+            message_bytes = message.encode("utf-8")
+        else:
+            message_bytes = message
+
+        chunks = [message_bytes[64 * i: 64 * i + 64] for i in range((len(message_bytes) + 63) // 64)]
+
+        client_intepreter = ClientCommandInterpreter()
+        client_intepreter.add_known_list(chunks)
+
+        sw, response = self._make_request(self.builder.sign_erc4361_message(message_bytes, bip32_path), client_intepreter)
+
+        if sw != 0x9000:
+            raise DeviceException(error_code=sw, ins=BitcoinInsType.SIGN_ERC4361_MESSAGE)
+
+        return base64.b64encode(response).decode('utf-8')
 
     def _derive_address_for_policy(self, wallet: WalletPolicy, change: bool, address_index: int) -> Optional[str]:
         desc_str = wallet.get_descriptor(change)
