@@ -44,8 +44,8 @@ PATH_APP_LOAD_PARAMS = "44'/0'" "44'/1'" "48'/0'" "48'/1'" "49'/0'" "49'/1'" "84
 
 # Application version
 APPVERSION_M = 1
-APPVERSION_N = 0
-APPVERSION_P = 4
+APPVERSION_N = 1
+APPVERSION_P = 0
 APPVERSION_SUFFIX = # if not empty, appended at the end. Do not add a dash.
 
 ifeq ($(APPVERSION_SUFFIX),)
