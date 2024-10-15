@@ -255,7 +255,9 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
                                               issued_at,
                                               expiration_time)) {
         SAFE_SEND_SW(dc, SW_DENY);
-        ui_post_processing_confirm_message(dc, false);
+        if (!ui_post_processing_confirm_message(dc, false)) {
+            PRINTF("Error in ui_post_processing_confirm_message");
+        }
         return;
     }
 #endif
@@ -271,7 +273,9 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
     if (sig_len < 0) {
         // unexpected error when signing
         SAFE_SEND_SW(dc, SW_BAD_STATE);
-        // ui_post_processing_confirm_erc4361_message(dc, false);
+        if (!ui_post_processing_confirm_message(dc, false)) {
+            PRINTF("Error in ui_post_processing_confirm_message");
+        }
         return;
     }
 
@@ -287,7 +291,9 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
 
         if (r_length > 33 || s_length > 33) {
             SAFE_SEND_SW(dc, SW_BAD_STATE);  // can never happen
-            // ui_post_processing_confirm_erc4361_message(dc, false);
+            if (!ui_post_processing_confirm_message(dc, false)) {
+                PRINTF("Error in ui_post_processing_confirm_message");
+            }
             return;
         }
 
@@ -303,7 +309,9 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
         result[0] = 27 + 4 + ((info & CX_ECCINFO_PARITY_ODD) ? 1 : 0);
 
         SEND_RESPONSE(dc, result, sizeof(result), SW_OK);
-        ui_post_processing_confirm_message(dc, true);
+        if (!ui_post_processing_confirm_message(dc, true)) {
+            PRINTF("Error in ui_post_processing_confirm_message");
+        }
         return;
     }
 }
