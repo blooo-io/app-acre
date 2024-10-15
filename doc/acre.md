@@ -16,6 +16,8 @@ The main commands use `CLA = 0xE1`.
 |  E1 |  04 | SIGN_PSBT              | Sign a PSBT with a registered or default wallet |
 |  E1 |  05 | GET_MASTER_FINGERPRINT | Return the fingerprint of the master public key |
 |  E1 |  10 | SIGN_MESSAGE           | Sign a message with a key from a BIP32 path (Bitcoin Message Signing) |
+|  E1 |  11 | SIGN_WITHDRAWAL        | Signs a Withdrawal message. The message being signed is the hash of the Acre Withdrawal transaction. |
+|  E1 |  12 | SIGN_ERC4361_MESSAGE   | Signs an Ethereum Sign-In message (ERC-4361) in Bitcoin format. |
 
 The `CLA = 0xF8` is used for framework-specific (rather than app-specific) APDUs; at this time, only one command is present.
 
@@ -391,6 +393,64 @@ The digest being signed is the double-SHA256 of the Withdrawal transaction hash,
 #### Client commands
 
 The client must respond to the `GET_PREIMAGE`, `GET_MERKLE_LEAF_PROOF` and `GET_MERKLE_LEAF_INDEX` queries for the Merkle tree of the list of chunks in the Withdrawal data.
+
+### SIGN_ERC4361_MESSAGE
+
+Signs an Ethereum Sign-In message (ERC-4361) in Bitcoin format.
+
+The device shows on its secure screen the following information:
+- Domain
+- Address
+- URI
+- Version
+- Nonce
+- Issued At
+- Expiration Time
+
+The user should verify this information carefully before approving the signature.
+
+#### Encoding
+
+**Command**
+
+| *CLA* | *INS* |
+|-------|-------|
+| E1    | 12    |
+
+**Input data**
+
+| Length  | Name              | Description |
+|---------|-------------------|-------------|
+| `1`     | `n`               | Number of derivation steps (maximum 8) |
+| `4`     | `bip32_path[0]`   | First derivation step (big endian) |
+| `4`     | `bip32_path[1]`   | Second derivation step (big endian) |
+|         | ...               |             |
+| `4`     | `bip32_path[n-1]` | `n`-th derivation step (big endian) |
+| `<var>` | `msg_length`      | The byte length of the message to sign (Bitcoin-style varint) |
+| `32`    | `msg_merkle_root` | The Merkle root of the message, split in 64-byte chunks |
+
+The message to be signed is split into `ceil(msg_length/64)` chunks of 64 bytes (except the last chunk that could be smaller); `msg_merkle_root` is the root of the Merkle tree of the corresponding list of chunks.
+
+**Output data**
+
+| Length | Description |
+|--------|-------------|
+| `65`   | The returned signature, encoded in the standard Bitcoin message signing format |
+
+The signature is returned as a 65-byte binary string (1 byte equal to 32 or 33, followed by `r` and `s`, each of them represented as a 32-byte big-endian integer).
+
+#### Description
+
+The digest being signed is the double-SHA256 of the ERC-4361 message, after prefixing the message with:
+
+- the magic string `"\x18Bitcoin Signed Message:\n"` (equal to `18426974636f696e205369676e6564204d6573736167653a0a` in hexadecimal)
+- the length of the message, encoded as a Bitcoin-style variable length integer.
+
+Note: The message is restricted to maximum 128 character lines.
+
+#### Client commands
+
+The client must respond to the `GET_PREIMAGE`, `GET_MERKLE_LEAF_PROOF` and `GET_MERKLE_LEAF_INDEX` queries for the Merkle tree of the list of chunks in the message.
 
 ## Client commands reference
 
