@@ -70,6 +70,16 @@ ifndef COIN
 COIN=acre_testnet
 endif
 
+ifeq ($(COIN),acre)
+COIN_VARIANT=1
+else ifeq ($(COIN),acre_testnet)
+COIN_VARIANT=2
+else
+$(error Unsupported COIN value: $(COIN))
+endif
+
+DEFINES += COIN_VARIANT=$(COIN_VARIANT)
+
 ########################################
 #     Application custom permissions   #
 ########################################
