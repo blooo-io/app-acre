@@ -6,7 +6,7 @@ from ledgercomm.interfaces.hid_device import HID
 
 from .transport import Transport
 
-from .common import Chain
+from .common import Chain, SW_OK
 
 from .command_builder import DefaultInsType
 from .exception import DeviceException
@@ -35,7 +35,7 @@ class TransportClient:
     ) -> bytes:
         sw, data = self.transport.exchange(cla, ins, p1, p2, None, data)
 
-        if sw != 0x9000:
+        if sw != SW_OK:
             raise ApduException(sw, data)
 
         return data
@@ -92,9 +92,9 @@ class Client:
 
             response = self.transport_client.apdu_exchange(**apdu)
             if self.debug:
-                print_response(0x9000, response)
+                print_response(SW_OK, response)
 
-            return 0x9000, response
+            return SW_OK, response
         except ApduException as e:
             if self.debug:
                 print_response(e.sw, e.data)
@@ -129,7 +129,7 @@ class Client:
         sw, response = self._make_request(
             {"cla": 0xB0, "ins": DefaultInsType.GET_VERSION, "p1": 0, "p2": 0, "data": b''})
 
-        if sw != 0x9000:
+        if sw != SW_OK:
             raise DeviceException(
                 error_code=sw, ins=DefaultInsType.GET_VERSION)
 

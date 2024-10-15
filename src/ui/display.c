@@ -172,6 +172,34 @@ bool ui_validate_withdraw_data_and_confirm(dispatcher_context_t *context,
     return io_ui_process(context, SET_UX_DIRTY);
 }
 
+bool ui_validate_erc4361_data_and_confirm(dispatcher_context_t *context,
+                                          const char *domain,
+                                          const char *address,
+                                          const char *uri,
+                                          const char *version,
+                                          const char *nonce,
+                                          const char *issued_at,
+                                          const char *expiration_time) {
+#ifdef HAVE_AUTOAPPROVE_FOR_PERF_TESTS
+    return true;
+#endif
+
+    ui_validate_erc4361_state_t *state = (ui_validate_erc4361_state_t *) &g_ui_state;
+    // copy the erc4361 data to the state
+    strncpy(state->domain, domain, sizeof(state->domain));
+    strncpy(state->address, address, sizeof(state->address));
+    strncpy(state->uri, uri, sizeof(state->uri));
+    strncpy(state->version, version, sizeof(state->version));
+    strncpy(state->nonce, nonce, sizeof(state->nonce));
+    strncpy(state->issued_at, issued_at, sizeof(state->issued_at));
+    strncpy(state->expiration_time, expiration_time, sizeof(state->expiration_time));
+
+    ui_display_erc4361_content_flow();
+    // We're back at work, we want to show the "Processing..." screen when appropriate
+    io_start_processing_timeout();
+    return io_ui_process(context, SET_UX_DIRTY);
+}
+
 #ifdef HAVE_BAGL
 bool ui_display_register_wallet(dispatcher_context_t *context,
                                 const policy_map_wallet_header_t *wallet_header,

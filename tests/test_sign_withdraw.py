@@ -27,7 +27,7 @@ def test_sign_withdraw(navigator: Navigator, firmware: Firmware, client: RaggerC
     result = client.sign_withdraw(data, path, navigator,
                                  instructions=withdrawal_instruction_approve(firmware),
                                  testname=test_name)
-    assert result == "ICk6sWthXlV33df4cHjx2SK7ihGeSM1pRwxCeD9ybuMNKN6eqK4VSGIXS19AmydEyzE57u9vhEyZIy5AnjKRpeU="
+    assert result == "H7C63V1KXzqImWjq6Bwy64m1cmdue4lFHEcdo9D4iHOKcKa9ddY7aTeCdq0n/31djYwv486DzZaHaOgtDuNuwZc="
 
 def test_sign_withdraw_wrong_address(navigator: Navigator, firmware: Firmware, client: RaggerClient, test_name: str):
     data = AcreWithdrawalData(

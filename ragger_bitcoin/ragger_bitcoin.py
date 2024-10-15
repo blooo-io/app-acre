@@ -1,6 +1,7 @@
 from typing import Tuple, List, Optional, Union
 from pathlib import Path
 
+from bitcoin_client.ledger_bitcoin.common import SW_INTERRUPTED_EXECUTION
 from ledger_bitcoin.common import Chain
 from ledger_bitcoin.client_command import ClientCommandInterpreter
 from ledger_bitcoin.client_base import TransportClient, PartialSignature
@@ -114,7 +115,7 @@ class RaggerClient(NewClient):
         sw, response, index = self.ragger_navigate(
             navigator, apdu, instructions, testname, index)
 
-        while sw == 0xE000:
+        while sw == SW_INTERRUPTED_EXECUTION:
             if not client_intepreter:
                 raise RuntimeError(
                     "Unexpected SW_INTERRUPTED_EXECUTION received.")
@@ -233,7 +234,24 @@ class RaggerClient(NewClient):
         self.navigate = False
 
         return response
+    
+    def sign_erc4361_message(self, message: Union[str, bytes], bip32_path: str, navigator:
+                     Optional[Navigator] = None,
+                     instructions: Instructions = None,
+                     testname: str = ""
+                     ) -> str:
 
+        if navigator:
+            self.navigate = True
+            self.navigator = navigator
+            self.testname = testname
+            self.instructions = instructions
+
+        response = NewClient.sign_erc4361_message(self, message, bip32_path)
+
+        self.navigate = False
+
+        return response
 
 def createRaggerClient(backend, chain: Chain = Chain.MAIN, debug: bool = False, screenshot_dir:
                        Path = TESTS_ROOT_DIR) -> RaggerClient:

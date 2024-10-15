@@ -53,18 +53,24 @@ static unsigned char const BSM_SIGN_MAGIC[] = {'\x18', 'B', 'i', 't', 'c', 'o', 
                                                'S',    'i', 'g', 'n', 'e', 'd', ' ', 'M', 'e',
                                                's',    's', 'a', 'g', 'e', ':', '\n'};
 
-// Keccak-256 hash of the ABI-encoded data:
-// abi.encode(
-//     DOMAIN_SEPARATOR_TYPEHASH, // 0x47e79534a245952e8b16893a336b85a3
-//                                     d9ea9fa8c573f3d803afb92a79469218
-//     getChainId(),              // 0x01
-//     this                       // 0x41675C099F32341bf84BFc5382aF534df5C7461a
-// )
-// Resulting hash value:
-// 0xc4864056e21022913a49884ba9fb4035364d5c2ab8b40f0305583ae419c72f86
-static const uint8_t keccak_of_abi_encode_2[32] = {
+#define COIN_VARIANT_ACRE         1
+#define COIN_VARIANT_ACRE_TESTNET 2
+
+#if !defined(COIN_VARIANT)
+#error "COIN_VARIANT is not defined"
+#elif COIN_VARIANT == COIN_VARIANT_ACRE
+// Mainnet hash
+static const uint8_t domain_separator_hash[32] = {
     0xc4, 0x86, 0x40, 0x56, 0xe2, 0x10, 0x22, 0x91, 0x3a, 0x49, 0x88, 0x4b, 0xa9, 0xfb, 0x40, 0x35,
     0x36, 0x4d, 0x5c, 0x2a, 0xb8, 0xb4, 0x0f, 0x03, 0x05, 0x58, 0x3a, 0xe4, 0x19, 0xc7, 0x2f, 0x86};
+#elif COIN_VARIANT == COIN_VARIANT_ACRE_TESTNET
+// Testnet hash
+static const uint8_t domain_separator_hash[32] = {
+    0x19, 0x2e, 0xfd, 0x34, 0x00, 0xda, 0x07, 0xca, 0xf5, 0xbd, 0x41, 0x8f, 0xdd, 0xfc, 0x07, 0x7a,
+    0x97, 0x88, 0x1b, 0x26, 0xb7, 0xca, 0x63, 0x8d, 0xda, 0x2d, 0x52, 0x3f, 0xde, 0xf4, 0xf8, 0x4c};
+#else
+#error "Unsupported COIN_VARIANT value"
+#endif
 
 static const uint8_t safe_tx_typehash[32] = {
     0xbb, 0x83, 0x10, 0xd4, 0x86, 0x36, 0x8d, 0xb6, 0xbd, 0x6f, 0x84, 0x94, 0x02, 0xfd, 0xd7, 0x3a,
@@ -527,8 +533,8 @@ void compute_tx_hash(dispatcher_context_t* dc,
     // Abi.encodePacked
     // 2 bytes (0x1901) + 2 keccak256 hashes
     u_int8_t abi_encode_packed[2 + (KECCAK_256_HASH_SIZE * 2)] = {0x19, 0x01};
-    // Add the keccak_of_abi_encode_2 to the abi_encode_packed
-    memcpy(abi_encode_packed + 2, keccak_of_abi_encode_2, KECCAK_256_HASH_SIZE);
+    // Add the domain_separator_hash to the abi_encode_packed
+    memcpy(abi_encode_packed + 2, domain_separator_hash, KECCAK_256_HASH_SIZE);
     // Add the keccak_of_tx_data to the abi_encode_packed
     memcpy(abi_encode_packed + 2 + KECCAK_256_HASH_SIZE,
            keccak_of_abi_encoded_tx_fields,

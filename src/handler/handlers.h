@@ -9,3 +9,4 @@ void handler_register_wallet(dispatcher_context_t *dispatcher_context, uint8_t p
 void handler_sign_message(dispatcher_context_t *dispatcher_context, uint8_t p2);
 void handler_sign_psbt(dispatcher_context_t *dispatcher_context, uint8_t p2);
 void handler_withdraw(dispatcher_context_t *dispatcher_context, uint8_t p2);
+void handler_sign_erc4361_message(dispatcher_context_t *dispatcher_context, uint8_t p2);

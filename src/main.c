@@ -96,6 +96,11 @@ const command_descriptor_t COMMAND_DESCRIPTORS[] = {
         .ins = WITHDRAW,
         .handler = (command_handler_t)handler_withdraw
     },
+    {
+        .cla = CLA_APP,
+        .ins = SIGN_ERC4361_MESSAGE,
+        .handler = (command_handler_t)handler_sign_erc4361_message
+    },
 };
 // clang-format on
 

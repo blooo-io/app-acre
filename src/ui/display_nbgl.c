@@ -518,6 +518,34 @@ void ui_display_withdraw_content_flow(void) {
                        start_transaction_callback);
 }
 
+void ui_display_erc4361_content_flow(void) {
+    pairList.pairs = pairs;
+    pairList.nbPairs = 7;
+
+    pairs[0].item = "Domain";
+    pairs[0].value = g_ui_state.validate_erc4361.domain;
+    pairs[1].item = "Address";
+    pairs[1].value = g_ui_state.validate_erc4361.address;
+    pairs[2].item = "URI";
+    pairs[2].value = g_ui_state.validate_erc4361.uri;
+    pairs[3].item = "Version";
+    pairs[3].value = g_ui_state.validate_erc4361.version;
+    pairs[4].item = "Nonce";
+    pairs[4].value = g_ui_state.validate_erc4361.nonce;
+    pairs[5].item = "Issued at";
+    pairs[5].value = g_ui_state.validate_erc4361.issued_at;
+    pairs[6].item = "Expiration time";
+    pairs[6].value = g_ui_state.validate_erc4361.expiration_time;
+
+    nbgl_useCaseReview(TYPE_MESSAGE,
+                       &pairList,
+                       &C_Acre_64px,
+                       "Review ERC4361 message",
+                       NULL,
+                       "Approve\nMessage ",
+                       start_transaction_callback);
+}
+
 void ui_set_display_prompt(void) {
     show_message_start_page = true;
 }

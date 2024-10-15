@@ -11,4 +11,5 @@ typedef enum {
     GET_MASTER_FINGERPRINT = 0x05,
     SIGN_MESSAGE = 0x10,
     WITHDRAW = 0x11,
+    SIGN_ERC4361_MESSAGE = 0x12,
 } command_e;

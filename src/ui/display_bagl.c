@@ -287,6 +287,59 @@ UX_STEP_CB(ux_withdraw_accept_step,
            set_ux_flow_response(true),
            {&C_icon_validate_14, "Approve", "withdraw"});
 
+//////////////////////////////////////////////////////////////////////
+UX_STEP_NOCB(ux_display_erc4361_step,
+             pnn,
+             {
+                 &C_icon_certificate,
+                 "Sign ERC-4361",
+                 "message",
+             });
+
+UX_STEP_NOCB(ux_display_erc4361_domain_step,
+             bnnn_paging,
+             {
+                 .title = "Domain",
+                 .text = g_ui_state.validate_erc4361.domain,
+             });
+
+UX_STEP_NOCB(ux_display_erc4361_address_step,
+             bnnn_paging,
+             {
+                 .title = "Address",
+                 .text = g_ui_state.validate_erc4361.address,
+             });
+UX_STEP_NOCB(ux_display_erc4361_uri_step,
+             bnnn_paging,
+             {
+                 .title = "URI",
+                 .text = g_ui_state.validate_erc4361.uri,
+             });
+UX_STEP_NOCB(ux_display_erc4361_version_step,
+             bnnn_paging,
+             {
+                 .title = "Version",
+                 .text = g_ui_state.validate_erc4361.version,
+             });
+UX_STEP_NOCB(ux_display_erc4361_nonce_step,
+             bnnn_paging,
+             {
+                 .title = "Nonce",
+                 .text = g_ui_state.validate_erc4361.nonce,
+             });
+UX_STEP_NOCB(ux_display_erc4361_issued_at_step,
+             bnnn_paging,
+             {
+                 .title = "Issued at",
+                 .text = g_ui_state.validate_erc4361.issued_at,
+             });
+UX_STEP_NOCB(ux_display_erc4361_expiration_time_step,
+             bnnn_paging,
+             {
+                 .title = "Expiration time",
+                 .text = g_ui_state.validate_erc4361.expiration_time,
+             });
+
 // FLOW to display BIP32 path to sign a message:
 // #1 screen: certificate icon + "Sign message"
 // #2 screen: display BIP32 Path
@@ -494,6 +547,29 @@ UX_FLOW(ux_withdraw_display_data_flow,
         &ux_withdraw_accept_step,
         &ux_display_reject_step);
 
+// FLOW to display ERC4361:
+// #1 screen: certificate icon + "Sign ERC-4361"
+// #2 screen: display Domain
+// #3 screen: display Address
+// #4 screen: display URI
+// #5 screen: display Version
+// #6 screen: display Nonce
+// #7 screen: display Issued at
+// #8 screen: display Expiration time
+// #9 screen: "Approve" button
+// #10 screen: "Reject" button
+UX_FLOW(ux_display_erc4361_content_flow,
+        &ux_display_erc4361_step,
+        &ux_display_erc4361_domain_step,
+        &ux_display_erc4361_address_step,
+        &ux_display_erc4361_uri_step,
+        &ux_display_erc4361_version_step,
+        &ux_display_erc4361_nonce_step,
+        &ux_display_erc4361_issued_at_step,
+        &ux_display_erc4361_expiration_time_step,
+        &ux_display_approve_step,
+        &ux_display_reject_step);
+
 void ui_display_pubkey_flow(void) {
     ux_flow_init(0, ux_display_pubkey_flow, NULL);
 }
@@ -577,4 +653,9 @@ void ui_accept_transaction_flow(bool is_self_transfer) {
 void ui_display_withdraw_content_flow(void) {
     ux_flow_init(0, ux_withdraw_display_data_flow, NULL);
 }
+
+void ui_display_erc4361_content_flow(void) {
+    ux_flow_init(0, ux_display_erc4361_content_flow, NULL);
+}
+
 #endif  // HAVE_BAGL
