@@ -74,12 +74,12 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
         !buffer_read_bip32_path(&dc->read_buffer, bip32_path, bip32_path_len) ||
         !buffer_read_varint(&dc->read_buffer, &message_length) ||
         !buffer_read_bytes(&dc->read_buffer, message_merkle_root, 32)) {
-        SEND_SW(dc, SW_WRONG_DATA_LENGTH);
+        SAFE_SEND_SW(dc, SW_WRONG_DATA_LENGTH);
         return;
     }
 
     if (bip32_path_len > MAX_BIP32_PATH_STEPS || message_length >= (1LL << 32)) {
-        SEND_SW(dc, SW_INCORRECT_DATA);
+        SAFE_SEND_SW(dc, SW_INCORRECT_DATA);
         return;
     }
 
@@ -145,7 +145,7 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
                                                      sizeof(message_chunk));
 
             if (chunk_len < 0 || (chunk_len != MESSAGE_CHUNK_SIZE && chunk_index != n_chunks - 1)) {
-                SEND_SW(dc, SW_BAD_STATE);  // should never happen
+                SAFE_SEND_SW(dc, SW_BAD_STATE);  // should never happen
                 return;
             }
             crypto_hash_update(&msg_hash_context.header, message_chunk, chunk_len);
@@ -171,7 +171,7 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
                 memcpy(leftover, parsing_buffer + parsing_buffer_len - leftover_len, leftover_len);
             } else {
                 PRINTF("Error: line length exceeds 128 bytes\n");
-                SEND_SW(dc, SW_INCORRECT_DATA);
+                SAFE_SEND_SW(dc, SW_INCORRECT_DATA);
                 return;
             }
             continue;
@@ -254,7 +254,7 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
                                               nonce,
                                               issued_at,
                                               expiration_time)) {
-        SEND_SW(dc, SW_DENY);
+        SAFE_SEND_SW(dc, SW_DENY);
         ui_post_processing_confirm_message(dc, false);
         return;
     }
@@ -270,7 +270,7 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
                                                          &info);
     if (sig_len < 0) {
         // unexpected error when signing
-        SEND_SW(dc, SW_BAD_STATE);
+        SAFE_SEND_SW(dc, SW_BAD_STATE);
         // ui_post_processing_confirm_erc4361_message(dc, false);
         return;
     }
@@ -286,7 +286,7 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
         int s_length = sig[4 + r_length + 1];
 
         if (r_length > 33 || s_length > 33) {
-            SEND_SW(dc, SW_BAD_STATE);  // can never happen
+            SAFE_SEND_SW(dc, SW_BAD_STATE);  // can never happen
             // ui_post_processing_confirm_erc4361_message(dc, false);
             return;
         }
