@@ -20,7 +20,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from ledger_bitcoin import Chain
-from ledger_bitcoin.common import sha256
+from ledger_bitcoin.common import sha256, SW_OK, SW_INTERRUPTED_EXECUTION
 import ledger_bitcoin._base58 as base58
 
 from ragger.conftest import configuration
@@ -213,5 +213,5 @@ def client(bitcoin_network: str, backend: BackendInterface) -> RaggerClient:
             f'Invalid value for BITCOIN_NETWORK: {bitcoin_network}')
 
     backend.raise_policy = RaisePolicy.RAISE_CUSTOM
-    backend.whitelisted_status = [0x9000, 0xE000]
+    backend.whitelisted_status = [SW_OK, SW_INTERRUPTED_EXECUTION]
     return createRaggerClient(backend, chain=chain, debug=True, screenshot_dir=TESTS_ROOT_DIR)

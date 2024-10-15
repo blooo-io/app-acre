@@ -9,7 +9,7 @@ from .embit.descriptor import Descriptor
 from .embit.networks import NETWORKS
 
 from .command_builder import BitcoinCommandBuilder, BitcoinInsType
-from .common import Chain, read_uint, read_varint
+from .common import Chain, read_uint, read_varint, SW_OK, SW_INTERRUPTED_EXECUTION
 from .client_command import ClientCommandInterpreter
 from .client_base import Client, TransportClient, PartialSignature
 from .client_legacy import LegacyClient
@@ -72,7 +72,7 @@ class NewClient(Client):
     ) -> Tuple[int, bytes]:
         sw, response = self._apdu_exchange(apdu)
 
-        while sw == 0xE000:
+        while sw == SW_INTERRUPTED_EXECUTION:
             if not client_intepreter:
                 raise RuntimeError("Unexpected SW_INTERRUPTED_EXECUTION received.")
 
@@ -86,7 +86,7 @@ class NewClient(Client):
     def get_extended_pubkey(self, path: str, display: bool = False) -> str:
         sw, response = self._make_request(self.builder.get_extended_pubkey(path, display))
 
-        if sw != 0x9000:
+        if sw != SW_OK:
             raise DeviceException(error_code=sw, ins=BitcoinInsType.GET_EXTENDED_PUBKEY)
 
         return response.decode()
@@ -106,7 +106,7 @@ class NewClient(Client):
             self.builder.register_wallet(wallet), client_intepreter
         )
 
-        if sw != 0x9000:
+        if sw != SW_OK:
             raise DeviceException(error_code=sw, ins=BitcoinInsType.REGISTER_WALLET)
 
         if len(response) != 64:
@@ -152,7 +152,7 @@ class NewClient(Client):
             client_intepreter,
         )
 
-        if sw != 0x9000:
+        if sw != SW_OK:
             raise DeviceException(error_code=sw, ins=BitcoinInsType.GET_WALLET_ADDRESS)
 
         result = response.decode()
@@ -224,7 +224,7 @@ class NewClient(Client):
             client_intepreter,
         )
 
-        if sw != 0x9000:
+        if sw != SW_OK:
             raise DeviceException(error_code=sw, ins=BitcoinInsType.SIGN_PSBT)
 
         # parse results and return a structured version instead
@@ -250,7 +250,7 @@ class NewClient(Client):
     def get_master_fingerprint(self) -> bytes:
         sw, response = self._make_request(self.builder.get_master_fingerprint())
 
-        if sw != 0x9000:
+        if sw != SW_OK:
             raise DeviceException(error_code=sw, ins=BitcoinInsType.GET_EXTENDED_PUBKEY)
 
         return response
@@ -268,7 +268,7 @@ class NewClient(Client):
 
         sw, response = self._make_request(self.builder.sign_message(message_bytes, bip32_path), client_intepreter)
 
-        if sw != 0x9000:
+        if sw != SW_OK:
             raise DeviceException(error_code=sw, ins=BitcoinInsType.SIGN_MESSAGE)
 
         return base64.b64encode(response).decode('utf-8')
@@ -304,7 +304,7 @@ class NewClient(Client):
 
         sw, response = self._make_request(self.builder.sign_withdraw(data_bytes, bip32_path), client_intepreter)
 
-        if sw != 0x9000:
+        if sw != SW_OK:
             raise DeviceException(error_code=sw, ins=BitcoinInsType.SIGN_WITHDRAW)
 
         return base64.b64encode(response).decode('utf-8')
@@ -322,7 +322,7 @@ class NewClient(Client):
 
         sw, response = self._make_request(self.builder.sign_erc4361_message(message_bytes, bip32_path), client_intepreter)
 
-        if sw != 0x9000:
+        if sw != SW_OK:
             raise DeviceException(error_code=sw, ins=BitcoinInsType.SIGN_ERC4361_MESSAGE)
 
         return base64.b64encode(response).decode('utf-8')

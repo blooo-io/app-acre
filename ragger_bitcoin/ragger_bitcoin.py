@@ -1,6 +1,7 @@
 from typing import Tuple, List, Optional, Union
 from pathlib import Path
 
+from bitcoin_client.ledger_bitcoin.common import SW_INTERRUPTED_EXECUTION
 from ledger_bitcoin.common import Chain
 from ledger_bitcoin.client_command import ClientCommandInterpreter
 from ledger_bitcoin.client_base import TransportClient, PartialSignature
@@ -114,7 +115,7 @@ class RaggerClient(NewClient):
         sw, response, index = self.ragger_navigate(
             navigator, apdu, instructions, testname, index)
 
-        while sw == 0xE000:
+        while sw == SW_INTERRUPTED_EXECUTION:
             if not client_intepreter:
                 raise RuntimeError(
                     "Unexpected SW_INTERRUPTED_EXECUTION received.")
