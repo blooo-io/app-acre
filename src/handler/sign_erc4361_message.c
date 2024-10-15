@@ -31,7 +31,6 @@ typedef struct {
     size_t name_length;
     char *output;
     size_t max_length;
-    bool *found_flag;
 } ERC4361Field;
 
 static size_t parse_field(const uint8_t *buffer,
@@ -117,19 +116,14 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
     size_t parsing_buffer_len = 0;
 
     bool parsing_done = false;
-    bool uri_found = false;
-    bool version_found = false;
-    bool nonce_found = false;
-    bool issued_at_found = false;
-    bool expiration_time_found = false;
 
     unsigned int chunk_index = 0;
     ERC4361Field fields[] = {
-        {"URI: ", 5, uri, MAX_URI_LENGTH, &uri_found},
-        {"Version: ", 9, version, MAX_VERSION_LENGTH, &version_found},
-        {"Nonce: ", 7, nonce, MAX_NONCE_LENGTH, &nonce_found},
-        {"Issued At: ", 11, issued_at, MAX_DATETIME_LENGTH, &issued_at_found},
-        {"Expiration Time: ", 17, expiration_time, MAX_DATETIME_LENGTH, &expiration_time_found},
+        {"URI: ", 5, uri, MAX_URI_LENGTH},
+        {"Version: ", 9, version, MAX_VERSION_LENGTH},
+        {"Nonce: ", 7, nonce, MAX_NONCE_LENGTH},
+        {"Issued At: ", 11, issued_at, MAX_DATETIME_LENGTH},
+        {"Expiration Time: ", 17, expiration_time, MAX_DATETIME_LENGTH},
     };
     const size_t num_fields = sizeof(fields) / sizeof(fields[0]);
 
@@ -195,14 +189,13 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
         if (current_line >= 4) {
             for (size_t i = 0; i < num_fields; i++) {
                 ERC4361Field *field = &fields[i];
-                if (!*field->found_flag && parsing_buffer_len >= field->name_length &&
+                if (parsing_buffer_len >= field->name_length &&
                     memcmp(parsing_buffer, field->name, field->name_length) == 0) {
                     size_t field_length = parse_field(parsing_buffer + field->name_length,
                                                       parsing_buffer_len - field->name_length,
                                                       field->output,
                                                       field->max_length);
                     total_bytes_read += field_length + field->name_length;
-                    *field->found_flag = true;
                     PRINTF("%s%s\n", field->name, field->output);
                     break;
                 }
