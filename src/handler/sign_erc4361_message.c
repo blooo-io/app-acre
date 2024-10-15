@@ -211,7 +211,6 @@ void handler_sign_erc4361_message(dispatcher_context_t *dc, uint8_t protocol_ver
                 // Save leftover for next chunk
                 leftover_len = parsing_buffer_len - (total_bytes_read - line_start);
                 memcpy(leftover, parsing_buffer + parsing_buffer_len - leftover_len, leftover_len);
-                // TODO: Handle the case where the line is too long
                 current_line++;
                 line_start = total_bytes_read;
                 break;
